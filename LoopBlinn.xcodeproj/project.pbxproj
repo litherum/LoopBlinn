@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1C4ACA411A83D757007C9347 /* Triangulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C4ACA401A83D757007C9347 /* Triangulator.cpp */; };
+		1C4ACA431A83D8FF007C9347 /* libCGAL.10.0.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C4ACA421A83D8FF007C9347 /* libCGAL.10.0.4.dylib */; };
+		1C4ACA451A83DBD4007C9347 /* libgmp.10.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C4ACA441A83DBD4007C9347 /* libgmp.10.dylib */; };
 		C28A55B11A831A960034B66E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C28A55B01A831A960034B66E /* AppDelegate.m */; };
 		C28A55B31A831A960034B66E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C28A55B21A831A960034B66E /* main.m */; };
 		C28A55B51A831A960034B66E /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C28A55B41A831A960034B66E /* Images.xcassets */; };
@@ -28,6 +31,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		1C4ACA3F1A83D745007C9347 /* Triangulator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Triangulator.h; sourceTree = "<group>"; };
+		1C4ACA401A83D757007C9347 /* Triangulator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Triangulator.cpp; sourceTree = "<group>"; };
+		1C4ACA421A83D8FF007C9347 /* libCGAL.10.0.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL.10.0.4.dylib; path = ../../../../../../opt/local/lib/libCGAL.10.0.4.dylib; sourceTree = "<group>"; };
+		1C4ACA441A83DBD4007C9347 /* libgmp.10.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgmp.10.dylib; path = ../../../../../../opt/local/lib/libgmp.10.dylib; sourceTree = "<group>"; };
+		1C4ACA471A83FB28007C9347 /* CFPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CFPtr.h; sourceTree = "<group>"; };
 		C28A55AA1A831A960034B66E /* LoopBlinn.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LoopBlinn.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C28A55AE1A831A960034B66E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C28A55AF1A831A960034B66E /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -49,6 +57,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1C4ACA451A83DBD4007C9347 /* libgmp.10.dylib in Frameworks */,
+				1C4ACA431A83D8FF007C9347 /* libCGAL.10.0.4.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -65,6 +75,8 @@
 		C28A55A11A831A960034B66E = {
 			isa = PBXGroup;
 			children = (
+				1C4ACA441A83DBD4007C9347 /* libgmp.10.dylib */,
+				1C4ACA421A83D8FF007C9347 /* libCGAL.10.0.4.dylib */,
 				C28A55AC1A831A960034B66E /* LoopBlinn */,
 				C28A55C01A831A970034B66E /* LoopBlinnTests */,
 				C28A55AB1A831A960034B66E /* Products */,
@@ -92,6 +104,9 @@
 				C28A55CD1A831B120034B66E /* LoopBlinnView.m */,
 				C28A55D01A833AF80034B66E /* Vertex.vs */,
 				C28A55D21A833B170034B66E /* Fragment.fs */,
+				1C4ACA3F1A83D745007C9347 /* Triangulator.h */,
+				1C4ACA401A83D757007C9347 /* Triangulator.cpp */,
+				1C4ACA471A83FB28007C9347 /* CFPtr.h */,
 			);
 			path = LoopBlinn;
 			sourceTree = "<group>";
@@ -224,6 +239,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C28A55B31A831A960034B66E /* main.m in Sources */,
+				1C4ACA411A83D757007C9347 /* Triangulator.cpp in Sources */,
 				C28A55B11A831A960034B66E /* AppDelegate.m in Sources */,
 				C28A55CE1A831B120034B66E /* LoopBlinnView.m in Sources */,
 			);
@@ -340,8 +356,17 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					/opt/local/include,
+				);
 				INFOPLIST_FILE = LoopBlinn/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/local/lib,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -351,8 +376,17 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					/opt/local/include,
+				);
 				INFOPLIST_FILE = LoopBlinn/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/local/lib,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -412,6 +446,7 @@
 				C28A55C91A831A970034B66E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		C28A55CA1A831A970034B66E /* Build configuration list for PBXNativeTarget "LoopBlinnTests" */ = {
 			isa = XCConfigurationList;
@@ -420,6 +455,7 @@
 				C28A55CC1A831A970034B66E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

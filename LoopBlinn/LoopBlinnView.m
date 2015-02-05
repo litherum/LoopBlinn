@@ -9,6 +9,7 @@
 #import <OpenGL/gl3.h>
 
 #import "LoopBlinnView.h"
+#import "Triangulator.h"
 
 @interface PathElementContext : NSObject
 @property NSMutableArray *points;
@@ -20,7 +21,7 @@
 @end
 
 @implementation LoopBlinnView {
-    NSArray *_points;
+    NSArray *_triangles;
     GLint _sizeUniformLocation;
     GLuint _program;
     GLuint _vbo;
@@ -30,6 +31,7 @@
 - (void)awakeFromNib {
     NSOpenGLPixelFormatAttribute attributes[] = {
         NSOpenGLPFADoubleBuffer,
+        NSOpenGLPFAAllowOfflineRenderers,
         NSOpenGLPFAColorSize, 32,
         NSOpenGLPFADepthSize, 24,
         NSOpenGLPFAStencilSize, 8,
@@ -42,7 +44,7 @@
     [self setPixelFormat:pixelFormat];
     [self setOpenGLContext:context];
     [self setWantsBestResolutionOpenGLSurface:YES];
-    _points = [NSArray new];
+    _triangles = [NSArray new];
     _sizeUniformLocation = -1;
     _program = 0;
     _vbo = 0;
@@ -53,10 +55,10 @@
     [super update];
     glViewport([self bounds].origin.x, [self bounds].origin.y, [self bounds].size.width, [self bounds].size.height);
     glUniform2f(_sizeUniformLocation, [self bounds].size.width, [self bounds].size.height);
-    _points = [self generatePoints];
-    GLfloat pointsArray[[_points count] * 2];
+    _triangles = [self generateTriangles];
+    GLfloat pointsArray[[_triangles count] * 2];
     unsigned int i = 0;
-    for (NSValue *value in _points) {
+    for (NSValue *value in _triangles) {
         CGPoint point;
         [value getValue:&point];
         pointsArray[i * 2 + 0] = point.x;
@@ -65,7 +67,7 @@
         ++i;
     }
     glBufferData(GL_ARRAY_BUFFER, sizeof(pointsArray), pointsArray, GL_STATIC_DRAW);
-    NSLog(@"Update to (%@, %@) x (%@, %@)", @([self bounds].origin.x), @([self bounds].origin.y), @([self bounds].size.width), @([self bounds].size.height));
+    //NSLog(@"Update to (%@, %@) x (%@, %@)", @([self bounds].origin.x), @([self bounds].origin.y), @([self bounds].size.width), @([self bounds].size.height));
 }
 
 - (void)prepareOpenGL {
@@ -125,19 +127,9 @@
     glGenVertexArrays(1, &_vertexArray);
     glBindVertexArray(_vertexArray);
 
-    GLfloat pointsArray[[_points count] * 2];
-    unsigned int i = 0;
-    for (NSValue *value in _points) {
-        CGPoint point;
-        [value getValue:&point];
-        pointsArray[i * 2 + 0] = point.x;
-        pointsArray[i * 2 + 1] = point.y;
-        NSLog(@"Point (%@, %@)", @(pointsArray[i * 2 + 0]), @(pointsArray[i * 2 + 1]));
-        ++i;
-    }
     glGenBuffers(1, &_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(pointsArray), pointsArray, GL_STATIC_DRAW);
+    //glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
     glEnableVertexAttribArray(positionAttributeLocation);
     glVertexAttribPointer(positionAttributeLocation, 2, GL_FLOAT, GL_FALSE, 0, NULL);
 
@@ -150,61 +142,16 @@
     assert(glError == GL_NO_ERROR);
 }
 
-static void pathIterator(void *info, const CGPathElement *element) {
-    PathElementContext *context = (__bridge PathElementContext*)info;
-    NSMutableArray *points = context.points;
-    switch (element->type) {
-        case kCGPathElementMoveToPoint: {
-            //NSLog(@"Moving to (%@, %@)", @(element->points[0].x), @(element->points[0].y));
-            CGPoint result = element->points[0];
-            result.x += context.lineOrigin.x;
-            result.y += context.lineOrigin.y;
-            result.x += context.glyphPosition.x;
-            result.y += context.glyphPosition.y;
-            [points addObject:[NSValue value:&result withObjCType:@encode(CGPoint)]];
-            break;
-        }
-        case kCGPathElementAddLineToPoint: {
-            //NSLog(@"Line to (%@, %@)", @(element->points[0].x), @(element->points[0].y));
-            CGPoint result = element->points[0];
-            result.x += context.lineOrigin.x;
-            result.y += context.lineOrigin.y;
-            result.x += context.glyphPosition.x;
-            result.y += context.glyphPosition.y;
-            [points addObject:[NSValue value:&result withObjCType:@encode(CGPoint)]];
-            break;
-        }
-        case kCGPathElementAddQuadCurveToPoint: {
-            //NSLog(@"Quadratic curve. Control point 1: (%@, %@) Destination: (%@, %@)", @(element->points[0].x), @(element->points[0].y), @(element->points[1].x), @(element->points[1].y));
-            CGPoint result = element->points[1];
-            result.x += context.lineOrigin.x;
-            result.y += context.lineOrigin.y;
-            result.x += context.glyphPosition.x;
-            result.y += context.glyphPosition.y;
-            [points addObject:[NSValue value:&result withObjCType:@encode(CGPoint)]];
-            break;
-        }
-        case kCGPathElementAddCurveToPoint: {
-            //NSLog(@"Cubic curve. Control point 1: (%@, %@) Control point 2: (%@, %@) Destination: (%@, %@)", @(element->points[0].x), @(element->points[0].y), @(element->points[1].x), @(element->points[1].y), @(element->points[2].x), @(element->points[2].y));
-            CGPoint result = element->points[2];
-            result.x += context.lineOrigin.x;
-            result.y += context.lineOrigin.y;
-            result.x += context.glyphPosition.x;
-            result.y += context.glyphPosition.y;
-            [points addObject:[NSValue value:&result withObjCType:@encode(CGPoint)]];
-            break;
-        }
-        case kCGPathElementCloseSubpath:
-            //NSLog(@"Closing subpath");
-            break;
-        default:
-            assert(false);
-    }
+static void triangleIterator(void* context, CGPoint p1, CGPoint p2, CGPoint p3) {
+    NSMutableArray *result = (__bridge NSMutableArray*)context;
+    [result addObject:[NSValue value:&p1 withObjCType:@encode(CGPoint)]];
+    [result addObject:[NSValue value:&p2 withObjCType:@encode(CGPoint)]];
+    [result addObject:[NSValue value:&p3 withObjCType:@encode(CGPoint)]];
 }
 
-- (NSArray *)generatePoints {
-    NSLog(@"Bounds: (%@, %@) x (%@, %@)", @([self bounds].origin.x), @([self bounds].origin.y), @([self bounds].size.width), @([self bounds].size.height));
-    CTFontRef font = CTFontCreateWithName((__bridge CFStringRef)@"American Typewriter", 1000, NULL);
+- (NSArray *)generateTriangles {
+    //NSLog(@"Bounds: (%@, %@) x (%@, %@)", @([self bounds].origin.x), @([self bounds].origin.y), @([self bounds].size.width), @([self bounds].size.height));
+    CTFontRef font = CTFontCreateWithName((__bridge CFStringRef)@"American Typewriter", 100, NULL);
     CFDictionaryRef attributes = CFDictionaryCreate(kCFAllocatorDefault, (const void**)&kCTFontAttributeName, (const void**)&font, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
     CFAttributedStringRef attributedString = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("efgh"), attributes);
     CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(attributedString);
@@ -219,14 +166,11 @@ static void pathIterator(void *info, const CGPathElement *element) {
     CFIndex lineCount = CFArrayGetCount(lines);
     CGPoint lineOrigins[lineCount];
     CTFrameGetLineOrigins(frame, CFRangeMake(0, 0), lineOrigins);
-    NSMutableArray *result = [[NSMutableArray alloc] init];
-    PathElementContext *context = [PathElementContext new];
-    context.points = result;
+    Triangulator* triangulator = createTriangulator();
     for (CFIndex lineIndex = 0; lineIndex < lineCount; ++lineIndex) {
         CTLineRef line = CFArrayGetValueAtIndex(lines, lineIndex);
         CGPoint origin = lineOrigins[lineIndex];
-        context.lineOrigin = origin;
-        NSLog(@"Line origin: (%@, %@)", @(origin.x), @(origin.y));
+        //NSLog(@"Line origin: (%@, %@)", @(origin.x), @(origin.y));
         CFArrayRef runs = CTLineGetGlyphRuns(line);
         CFIndex runCount = CFArrayGetCount(runs);
         for (CFIndex runIndex = 0; runIndex < runCount; ++runIndex) {
@@ -243,23 +187,24 @@ static void pathIterator(void *info, const CGPathElement *element) {
             for (CFIndex glyphIndex = 0; glyphIndex < glyphCount; ++glyphIndex) {
                 CGGlyph glyph = glyphs[glyphIndex];
                 CGPoint position = positions[glyphIndex];
-                context.glyphPosition = position;
                 CGPathRef path = CTFontCreatePathForGlyph(usedFont, glyph, NULL);
-                //NSLog(@"Starting path for glyph %@ at position (%@, %@) with a line origin of (%@, %@)", @(glyph), @(position.x), @(position.y), @(origin.x), @(origin.y));
-                CGPathApply(path, (__bridge void*)context, &pathIterator);
-                //NSLog(@"Path ending");
+                triangulatorAppendPath(triangulator, path, CGPointMake(origin.x + position.x, origin.y + position.y));
                 CFRelease(path);
             }
         }
     }
     CFRelease(frame);
+    NSMutableArray *result = [NSMutableArray new];
+    triangulatorTriangulate(triangulator);
+    triangulatorApply(triangulator, triangleIterator, (__bridge void*)result);
+    destroyTriangulator(triangulator);
     return result;
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
-    NSLog(@"Drawing");
+    //NSLog(@"Drawing");
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glDrawArrays(GL_LINE_STRIP, 0, (GLsizei)[_points count]);
+    glDrawArrays(GL_TRIANGLES, 0, (GLsizei)[_triangles count]);
     [[self openGLContext] flushBuffer];
     GLenum glError = glGetError();
     assert(glError == GL_NO_ERROR);
