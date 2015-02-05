@@ -12,6 +12,9 @@
 		C28A55B51A831A960034B66E /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C28A55B41A831A960034B66E /* Images.xcassets */; };
 		C28A55B81A831A960034B66E /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = C28A55B61A831A960034B66E /* MainMenu.xib */; };
 		C28A55C41A831A970034B66E /* LoopBlinnTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C28A55C31A831A970034B66E /* LoopBlinnTests.m */; };
+		C28A55CE1A831B120034B66E /* LoopBlinnView.m in Sources */ = {isa = PBXBuildFile; fileRef = C28A55CD1A831B120034B66E /* LoopBlinnView.m */; };
+		C28A55D11A833AF80034B66E /* Vertex.vs in Resources */ = {isa = PBXBuildFile; fileRef = C28A55D01A833AF80034B66E /* Vertex.vs */; };
+		C28A55D31A833B170034B66E /* Fragment.fs in Resources */ = {isa = PBXBuildFile; fileRef = C28A55D21A833B170034B66E /* Fragment.fs */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -35,6 +38,10 @@
 		C28A55BD1A831A970034B66E /* LoopBlinnTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LoopBlinnTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C28A55C21A831A970034B66E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C28A55C31A831A970034B66E /* LoopBlinnTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LoopBlinnTests.m; sourceTree = "<group>"; };
+		C28A55CD1A831B120034B66E /* LoopBlinnView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoopBlinnView.m; sourceTree = "<group>"; };
+		C28A55CF1A831B350034B66E /* LoopBlinnView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LoopBlinnView.h; sourceTree = "<group>"; };
+		C28A55D01A833AF80034B66E /* Vertex.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Vertex.vs; sourceTree = "<group>"; };
+		C28A55D21A833B170034B66E /* Fragment.fs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Fragment.fs; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -81,6 +88,10 @@
 				C28A55B41A831A960034B66E /* Images.xcassets */,
 				C28A55B61A831A960034B66E /* MainMenu.xib */,
 				C28A55AD1A831A960034B66E /* Supporting Files */,
+				C28A55CF1A831B350034B66E /* LoopBlinnView.h */,
+				C28A55CD1A831B120034B66E /* LoopBlinnView.m */,
+				C28A55D01A833AF80034B66E /* Vertex.vs */,
+				C28A55D21A833B170034B66E /* Fragment.fs */,
 			);
 			path = LoopBlinn;
 			sourceTree = "<group>";
@@ -192,6 +203,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				C28A55B51A831A960034B66E /* Images.xcassets in Resources */,
+				C28A55D11A833AF80034B66E /* Vertex.vs in Resources */,
+				C28A55D31A833B170034B66E /* Fragment.fs in Resources */,
 				C28A55B81A831A960034B66E /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -212,6 +225,7 @@
 			files = (
 				C28A55B31A831A960034B66E /* main.m in Sources */,
 				C28A55B11A831A960034B66E /* AppDelegate.m in Sources */,
+				C28A55CE1A831B120034B66E /* LoopBlinnView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
