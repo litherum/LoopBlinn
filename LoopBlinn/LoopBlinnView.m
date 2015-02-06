@@ -11,17 +11,24 @@
 #import "LoopBlinnView.h"
 #import "Triangulator.h"
 
-@interface PathElementContext : NSObject
-@property NSMutableArray *points;
-@property CGPoint lineOrigin;
-@property CGPoint glyphPosition;
+@interface TriangulationContext : NSObject
+@property NSMutableArray *vertices;
+@property NSMutableArray *coordinates;
 @end
 
-@implementation PathElementContext
+@implementation TriangulationContext
+-(instancetype)init {
+    self = [super init];
+    if (self != nil) {
+        _vertices = [NSMutableArray new];
+        _coordinates = [NSMutableArray new];
+    }
+    return self;
+}
 @end
 
 @implementation LoopBlinnView {
-    NSArray *_triangles;
+    GLsizei _pointCount;
     GLint _sizeUniformLocation;
     GLuint _program;
     GLuint _vbo;
@@ -44,7 +51,7 @@
     [self setPixelFormat:pixelFormat];
     [self setOpenGLContext:context];
     [self setWantsBestResolutionOpenGLSurface:YES];
-    _triangles = [NSArray new];
+    _pointCount = 0;
     _sizeUniformLocation = -1;
     _program = 0;
     _vbo = 0;
@@ -55,16 +62,18 @@
     [super update];
     glViewport([self bounds].origin.x, [self bounds].origin.y, [self bounds].size.width, [self bounds].size.height);
     glUniform2f(_sizeUniformLocation, [self bounds].size.width, [self bounds].size.height);
-    _triangles = [self generateTriangles];
-    GLfloat pointsArray[[_triangles count] * 2];
-    unsigned int i = 0;
-    for (NSValue *value in _triangles) {
+    TriangulationContext *context = [self triangulate];
+    assert(context.vertices.count == context.coordinates.count);
+    _pointCount = (GLsizei)context.vertices.count;
+    GLfloat pointsArray[_pointCount * 4];
+    for (NSUInteger i = 0; i < _pointCount; ++i) {
         CGPoint point;
-        [value getValue:&point];
-        pointsArray[i * 2 + 0] = point.x;
-        pointsArray[i * 2 + 1] = point.y;
-        //NSLog(@"Point (%@, %@)", @(pointsArray[i * 2 + 0]), @(pointsArray[i * 2 + 1]));
-        ++i;
+        [[context.vertices objectAtIndex:i] getValue:&point];
+        pointsArray[i * 4 + 0] = point.x;
+        pointsArray[i * 4 + 1] = point.y;
+        [[context.coordinates objectAtIndex:i] getValue:&point];
+        pointsArray[i * 4 + 2] = point.x;
+        pointsArray[i * 4 + 3] = point.y;
     }
     glBufferData(GL_ARRAY_BUFFER, sizeof(pointsArray), pointsArray, GL_STATIC_DRAW);
     //NSLog(@"Update to (%@, %@) x (%@, %@)", @([self bounds].origin.x), @([self bounds].origin.y), @([self bounds].size.width), @([self bounds].size.height));
@@ -120,7 +129,8 @@
 
     glUseProgram(_program);
     GLint positionAttributeLocation = glGetAttribLocation(_program, "position");
-    NSLog(@"Position attribute location: %@", @(positionAttributeLocation));
+    GLint coordinateAttributeLocation = glGetAttribLocation(_program, "coordinate");
+    NSLog(@"Position attribute location: %@ Coordinate attribute location: %@", @(positionAttributeLocation), @(coordinateAttributeLocation));
     _sizeUniformLocation = glGetUniformLocation(_program, "size");
     NSLog(@"Size uniform location: %@", @(_sizeUniformLocation));
 
@@ -129,9 +139,10 @@
 
     glGenBuffers(1, &_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-    //glBufferData(GL_ARRAY_BUFFER, 0, NULL, GL_STATIC_DRAW);
     glEnableVertexAttribArray(positionAttributeLocation);
-    glVertexAttribPointer(positionAttributeLocation, 2, GL_FLOAT, GL_FALSE, 0, NULL);
+    glEnableVertexAttribArray(coordinateAttributeLocation);
+    glVertexAttribPointer(positionAttributeLocation, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+    glVertexAttribPointer(coordinateAttributeLocation, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
 
     glUniform2f(_sizeUniformLocation, [self bounds].size.width, [self bounds].size.height);
 
@@ -142,16 +153,19 @@
     assert(glError == GL_NO_ERROR);
 }
 
-static void triangleIterator(void* context, CGPoint p1, CGPoint p2, CGPoint p3) {
-    NSMutableArray *result = (__bridge NSMutableArray*)context;
-    [result addObject:[NSValue value:&p1 withObjCType:@encode(CGPoint)]];
-    [result addObject:[NSValue value:&p2 withObjCType:@encode(CGPoint)]];
-    [result addObject:[NSValue value:&p3 withObjCType:@encode(CGPoint)]];
+static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, CGPoint c1, CGPoint c2, CGPoint c3) {
+    TriangulationContext *context = (__bridge TriangulationContext*)c;
+    [context.vertices addObject:[NSValue value:&p1 withObjCType:@encode(CGPoint)]];
+    [context.vertices addObject:[NSValue value:&p2 withObjCType:@encode(CGPoint)]];
+    [context.vertices addObject:[NSValue value:&p3 withObjCType:@encode(CGPoint)]];
+    [context.coordinates addObject:[NSValue value:&c1 withObjCType:@encode(CGPoint)]];
+    [context.coordinates addObject:[NSValue value:&c2 withObjCType:@encode(CGPoint)]];
+    [context.coordinates addObject:[NSValue value:&c3 withObjCType:@encode(CGPoint)]];
 }
 
-- (NSArray *)generateTriangles {
+- (TriangulationContext *)triangulate {
     //NSLog(@"Bounds: (%@, %@) x (%@, %@)", @([self bounds].origin.x), @([self bounds].origin.y), @([self bounds].size.width), @([self bounds].size.height));
-    CTFontRef font = CTFontCreateWithName((__bridge CFStringRef)@"American Typewriter", 100, NULL);
+    CTFontRef font = CTFontCreateWithName((__bridge CFStringRef)@"Arial", 500, NULL);
     CFDictionaryRef attributes = CFDictionaryCreate(kCFAllocatorDefault, (const void**)&kCTFontAttributeName, (const void**)&font, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
     CFAttributedStringRef attributedString = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("efgh"), attributes);
     CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(attributedString);
@@ -194,17 +208,17 @@ static void triangleIterator(void* context, CGPoint p1, CGPoint p2, CGPoint p3) 
         }
     }
     CFRelease(frame);
-    NSMutableArray *result = [NSMutableArray new];
+    TriangulationContext *context = [TriangulationContext new];
     triangulatorTriangulate(triangulator);
-    triangulatorApply(triangulator, triangleIterator, (__bridge void*)result);
+    triangulatorApply(triangulator, triangleIterator, (__bridge void*)context);
     destroyTriangulator(triangulator);
-    return result;
+    return context;
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
     //NSLog(@"Drawing");
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glDrawArrays(GL_TRIANGLES, 0, (GLsizei)[_triangles count]);
+    glDrawArrays(GL_TRIANGLES, 0, _pointCount);
     [[self openGLContext] flushBuffer];
     GLenum glError = glGetError();
     assert(glError == GL_NO_ERROR);

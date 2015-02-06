@@ -24,7 +24,7 @@ typedef CGAL::Triangulation_vertex_base_2<K>                      Vb;
 typedef CGAL::Triangulation_face_base_2<K>                        Fbb;
 typedef CGAL::Constrained_triangulation_face_base_2<K,Fbb>        Fb;
 typedef CGAL::Triangulation_data_structure_2<Vb,Fb>               TDS;
-typedef CGAL::No_intersection_tag                                 Itag;
+typedef CGAL::Exact_predicates_tag                                Itag;
 typedef CGAL::Constrained_Delaunay_triangulation_2<K, TDS, Itag>  CDT;
 typedef CGAL::Polygon_2<K>                                        Polygon_2;
 
@@ -63,7 +63,8 @@ struct Triangulator {
                 if (CGPathContainsPoint(path.first.get(), NULL, CGPointMake(middle.x - path.second.x, middle.y - path.second.y), true)) { // FIXME: EO rule?
                     iterator(context, CGPointMake(i->vertex(0)->point().x(), i->vertex(0)->point().y()),
                                       CGPointMake(i->vertex(1)->point().x(), i->vertex(1)->point().y()),
-                                      CGPointMake(i->vertex(2)->point().x(), i->vertex(2)->point().y()));
+                                      CGPointMake(i->vertex(2)->point().x(), i->vertex(2)->point().y()),
+                                      CGPointMake(0, 0), CGPointMake(0.5, 0), CGPointMake(1, 1));
                     break;
                 }
             }
