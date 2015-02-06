@@ -49,6 +49,12 @@ struct Triangulator {
         //assert(cdt.is_valid());
     }
 
+    void quadraticTo(CGPoint destination, CGPoint control) {
+        std::array<CGPoint, 3> quadraticCurve{{CGPointMake(currentPosition->point().x(), currentPosition->point().y()), control, destination}};
+        quadraticCurves.emplace_back(std::move(quadraticCurve));
+        lineTo(destination);
+    }
+
     void path(CGPathRef path, CGPoint origin) {
         paths.emplace_back(std::make_pair(path, origin));
     }
@@ -64,10 +70,13 @@ struct Triangulator {
                     iterator(context, CGPointMake(i->vertex(0)->point().x(), i->vertex(0)->point().y()),
                                       CGPointMake(i->vertex(1)->point().x(), i->vertex(1)->point().y()),
                                       CGPointMake(i->vertex(2)->point().x(), i->vertex(2)->point().y()),
-                                      CGPointMake(0, 0), CGPointMake(0.5, 0), CGPointMake(1, 1));
+                                      CGPointMake(0, 1), CGPointMake(0, 1), CGPointMake(0, 1));
                     break;
                 }
             }
+        }
+        for (auto& quad : quadraticCurves) {
+            iterator(context, quad[0], quad[1], quad[2], CGPointMake(0, 0), CGPointMake(0.5, 0), CGPointMake(1, 1));
         }
         //std::cout << "Done with triangles" << std::endl;
     }
@@ -76,6 +85,7 @@ private:
     CDT cdt;
     std::vector<std::pair<CFPtr<CGPathRef>, CGPoint>> paths;
     CDT::Vertex_handle currentPosition;
+    std::vector<std::array<CGPoint, 3>> quadraticCurves;
 };
 
 Triangulator* createTriangulator() {
@@ -117,8 +127,9 @@ static void pathIterator(void *info, const CGPathElement *element) {
         }
         case kCGPathElementAddQuadCurveToPoint: {
             //NSLog(@"Quadratic curve. Control point 1: (%@, %@) Destination: (%@, %@)", @(element->points[0].x), @(element->points[0].y), @(element->points[1].x), @(element->points[1].y));
-            CGPoint absolutePoint = CGPointMake(context.origin.x + element->points[1].x, context.origin.y + element->points[1].y);
-            context.triangulator.lineTo(absolutePoint);
+            CGPoint absolutePoint1 = CGPointMake(context.origin.x + element->points[0].x, context.origin.y + element->points[0].y);
+            CGPoint absolutePoint2 = CGPointMake(context.origin.x + element->points[1].x, context.origin.y + element->points[1].y);
+            context.triangulator.quadraticTo(absolutePoint2, absolutePoint1);
             break;
         }
         case kCGPathElementAddCurveToPoint: {
