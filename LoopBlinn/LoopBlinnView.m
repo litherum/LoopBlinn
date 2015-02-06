@@ -81,7 +81,6 @@
         p[i * 5 + 4] = [[context.orientations objectAtIndex:i / 3] boolValue] ? 1 : 0;
     }
     glBufferData(GL_ARRAY_BUFFER, data.length, data.bytes, GL_STATIC_DRAW);
-    //NSLog(@"Update to (%@, %@) x (%@, %@)", @(self.bounds.origin.x), @(self.bounds.origin.y), @(self.bounds.size.width), @(self.bounds.size.height));
 }
 
 - (void)prepareOpenGL {
@@ -186,8 +185,7 @@ static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, CGPoin
 }
 
 - (TriangulationContext *)triangulate {
-    //NSLog(@"Bounds: (%@, %@) x (%@, %@)", @(self.bounds.origin.x), @(self.bounds.origin.y), @(self.bounds.size.width), @(self.bounds.size.height));
-    CTFontRef font = CTFontCreateWithName((__bridge CFStringRef)@"Arial", 500, NULL);
+    CTFontRef font = CTFontCreateWithName((__bridge CFStringRef)@"Arial", 300, NULL);
     CFDictionaryRef attributes = CFDictionaryCreate(kCFAllocatorDefault, (const void**)&kCTFontAttributeName, (const void**)&font, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
     CFAttributedStringRef attributedString = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("efgh"), attributes);
     CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(attributedString);
@@ -206,7 +204,6 @@ static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, CGPoin
     for (CFIndex lineIndex = 0; lineIndex < lineCount; ++lineIndex) {
         CTLineRef line = CFArrayGetValueAtIndex(lines, lineIndex);
         CGPoint origin = lineOrigins[lineIndex];
-        //NSLog(@"Line origin: (%@, %@)", @(origin.x), @(origin.y));
         CFArrayRef runs = CTLineGetGlyphRuns(line);
         CFIndex runCount = CFArrayGetCount(runs);
         for (CFIndex runIndex = 0; runIndex < runCount; ++runIndex) {
@@ -238,7 +235,6 @@ static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, CGPoin
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
-    //NSLog(@"Drawing");
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glDrawArrays(GL_TRIANGLES, 0, _pointCount);
     [[self openGLContext] flushBuffer];

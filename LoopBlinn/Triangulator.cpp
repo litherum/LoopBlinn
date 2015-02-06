@@ -10,6 +10,8 @@
 
 #include "CFPtr.h"
 
+#include <queue>
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wconditional-uninitialized"
 #pragma clang diagnostic ignored "-Wshorten-64-to-32"
@@ -19,39 +21,40 @@
 #include <CGAL/Polygon_2.h>
 #pragma clang diagnostic pop
 
+struct FaceInfo {
+    bool marked;
+};
+
 typedef CGAL::Exact_predicates_inexact_constructions_kernel       K;
 typedef CGAL::Triangulation_vertex_base_2<K>                      Vb;
-typedef CGAL::Triangulation_face_base_2<K>                        Fbb;
+typedef CGAL::Triangulation_face_base_with_info_2<FaceInfo, K>    Fbb;
 typedef CGAL::Constrained_triangulation_face_base_2<K,Fbb>        Fb;
 typedef CGAL::Triangulation_data_structure_2<Vb,Fb>               TDS;
 typedef CGAL::Exact_predicates_tag                                Itag;
 typedef CGAL::Constrained_Delaunay_triangulation_2<K, TDS, Itag>  CDT;
 typedef CGAL::Polygon_2<K>                                        Polygon_2;
 
+static bool orientTurn(float x1, float y1, float x2, float y2) {
+    return CGAL::cross_product(CGAL::Vector_3<K>(x1, y1, 0), CGAL::Vector_3<K>(x2, y2, 0)).z() > 0;
+}
+
 struct Triangulator {
     void moveTo(CGPoint destination) {
-        //assert(cdt.is_valid());
         currentPosition = cdt.insert(CDT::Point(destination.x, destination.y));
-        //assert(cdt.is_valid());
-        //std::cout << "Inserting  " << destination.x << " " << destination.y << std::endl;
+        subpathStart = currentPosition;
+        std::vector<CDT::Vertex_handle> subpath;
+        subpath.push_back(currentPosition);
+        subpaths.emplace_back(std::move(subpath));
     }
 
     void lineTo(CGPoint destination) {
-        //assert(cdt.is_valid());
         CDT::Vertex_handle nextPosition = cdt.insert(CDT::Point(destination.x, destination.y));
-        //std::cout << "Inserting  " << destination.x << " " << destination.y << std::endl;
-        if (currentPosition == nextPosition) {
-            //assert(cdt.is_valid());
-            return;
-        }
-        cdt.insert_constraint(currentPosition, nextPosition);
-        currentPosition = nextPosition;
-        //assert(cdt.is_valid());
+        lineTo(nextPosition);
     }
 
     void quadraticTo(CGPoint destination, CGPoint control) {
         std::array<CGPoint, 3> quadraticCurve{{CGPointMake(currentPosition->point().x(), currentPosition->point().y()), control, destination}};
-        bool orientation = CGAL::cross_product(CGAL::Vector_3<K>(control.x - currentPosition->point().x(), control.y - currentPosition->point().y(), 0), CGAL::Vector_3<K>(destination.x - currentPosition->point().x(), destination.y - currentPosition->point().y(), 0)).z() > 0;
+        bool orientation = orientTurn(control.x - currentPosition->point().x(), control.y - currentPosition->point().y(), destination.x - currentPosition->point().x(), destination.y - currentPosition->point().y());
         quadraticCurves.emplace_back(std::make_pair(std::move(quadraticCurve), std::move(orientation)));
         if (orientation) {
             lineTo(control);
@@ -60,36 +63,88 @@ struct Triangulator {
             lineTo(destination);
     }
 
-    void path(CGPathRef path, CGPoint origin) {
-        paths.emplace_back(std::make_pair(path, origin));
+    void cubicTo(CGPoint destination, CGPoint control1, CGPoint control2) {
+        lineTo(destination); // FIXME: Implement
+    }
+
+    void close() {
+        lineTo(subpathStart);
+    }
+
+    void mark() {
+        for(CDT::All_faces_iterator i = cdt.all_faces_begin(); i != cdt.all_faces_end(); ++i){
+            i->info().marked = false;
+        }
+
+        for (auto& subpath : subpaths) {
+            if (subpath.size() < 3)
+                continue;
+            for (size_t i = 0; i < subpath.size() - 1; ++i) {
+                CDT::Vertex_handle vertex1 = subpath[i];
+                CDT::Vertex_handle vertex2 = subpath[i + 1];
+                CDT::Face_handle seed = lookupFace(vertex1, vertex2);
+                if (seed->info().marked)
+                    continue;
+
+                std::queue<CDT::Face_handle> queue;
+                queue.push(seed);
+                while (queue.size()) {
+                    CDT::Face_handle face = queue.front();
+                    queue.pop();
+                    face->info().marked = true;
+                    for (int i = 0; i < 3; ++i) {
+                        CDT::Edge e(face, i);
+                        if (cdt.is_constrained(e))
+                            continue;
+                        CDT::Face_handle neighbor = face->neighbor(i);
+                        if (!neighbor->info().marked)
+                            queue.push(neighbor);
+                    }
+                }
+            }
+        }
     }
 
     void apply(TriangleIterator iterator, void* context) {
         for (auto i = cdt.all_faces_begin(); i != cdt.all_faces_end(); ++i) {
-            //std::cout << "Triangle at (" << i->vertex(0)->point().x() << ", " << i->vertex(0)->point().y() << ") (" << i->vertex(1)->point().x() << ", " << i->vertex(1)->point().y() << ") (" << i->vertex(2)->point().x() << ", " << i->vertex(2)->point().y() << ")" << std::endl;
             if (i->vertex(0) == cdt.infinite_vertex() || i->vertex(1) == cdt.infinite_vertex() || i->vertex(2) == cdt.infinite_vertex())
                 continue;
-            CGPoint middle = CGPointMake((i->vertex(0)->point().x() + i->vertex(1)->point().x() + i->vertex(2)->point().x()) / 3, (i->vertex(0)->point().y() + i->vertex(1)->point().y() + i->vertex(2)->point().y()) / 3);
-            for (auto& path : paths) {
-                // FIXME: This conditional is very wrong
-                if (CGPathContainsPoint(path.first.get(), NULL, CGPointMake(middle.x - path.second.x, middle.y - path.second.y), true)) { // FIXME: EO rule?
-                    iterator(context, CGPointMake(i->vertex(0)->point().x(), i->vertex(0)->point().y()),
-                                      CGPointMake(i->vertex(1)->point().x(), i->vertex(1)->point().y()),
-                                      CGPointMake(i->vertex(2)->point().x(), i->vertex(2)->point().y()),
-                                      CGPointMake(0, 1), CGPointMake(0, 1), CGPointMake(0, 1), false);
-                    break;
-                }
-            }
+            if (i->info().marked)
+                iterator(context, CGPointMake(i->vertex(0)->point().x(), i->vertex(0)->point().y()),
+                                  CGPointMake(i->vertex(1)->point().x(), i->vertex(1)->point().y()),
+                                  CGPointMake(i->vertex(2)->point().x(), i->vertex(2)->point().y()),
+                                  CGPointMake(0, 1), CGPointMake(0, 1), CGPointMake(0, 1), false);
         }
         for (auto& quad : quadraticCurves)
             iterator(context, quad.first[0], quad.first[1], quad.first[2], CGPointMake(0, 0), CGPointMake(0.5, 0), CGPointMake(1, 1), quad.second);
-        //std::cout << "Done with triangles" << std::endl;
     }
 
 private:
+    void lineTo(CDT::Vertex_handle nextPosition) {
+        if (currentPosition == nextPosition)
+            return;
+        cdt.insert_constraint(currentPosition, nextPosition);
+        currentPosition = nextPosition;
+        subpaths[subpaths.size() - 1].push_back(nextPosition);
+    }
+
+    CDT::Face_handle lookupFace(CDT::Vertex_handle vertex1, CDT::Vertex_handle vertex2) {
+        CDT::Face_circulator initial = cdt.incident_faces(vertex1);
+        CDT::Face_circulator i = initial;
+        do {
+            for (int j = 0; j < 3; ++j) {
+                if (i->vertex(j) == vertex1 && i->vertex(CDT::cw(j)) == vertex2)
+                    return i;
+            }
+            ++i;
+        } while (i != initial);
+        assert(false);
+    }
+
     CDT cdt;
-    std::vector<std::pair<CFPtr<CGPathRef>, CGPoint>> paths;
     CDT::Vertex_handle currentPosition;
+    CDT::Vertex_handle subpathStart;
+    std::vector<std::vector<CDT::Vertex_handle>> subpaths;
     std::vector<std::pair<std::array<CGPoint, 3>, bool>> quadraticCurves;
 };
 
@@ -106,46 +161,40 @@ struct PathIteratorContext {
     PathIteratorContext(Triangulator& triangulator, CGPoint origin)
         : triangulator(triangulator)
         , origin(origin)
-        , subpathStart(origin)
     {
     }
     Triangulator& triangulator;
     CGPoint origin;
-    CGPoint subpathStart;
 };
 
 static void pathIterator(void *info, const CGPathElement *element) {
     struct PathIteratorContext& context = *(PathIteratorContext*)info;
     switch (element->type) {
         case kCGPathElementMoveToPoint: {
-            //NSLog(@"Moving to (%@, %@)", @(element->points[0].x), @(element->points[0].y));
             CGPoint absolutePoint = CGPointMake(context.origin.x + element->points[0].x, context.origin.y + element->points[0].y);
             context.triangulator.moveTo(absolutePoint);
-            context.subpathStart = absolutePoint;
             break;
         }
         case kCGPathElementAddLineToPoint: {
-            //NSLog(@"Line to (%@, %@)", @(element->points[0].x), @(element->points[0].y));
             CGPoint absolutePoint = CGPointMake(context.origin.x + element->points[0].x, context.origin.y + element->points[0].y);
             context.triangulator.lineTo(absolutePoint);
             break;
         }
         case kCGPathElementAddQuadCurveToPoint: {
-            //NSLog(@"Quadratic curve. Control point 1: (%@, %@) Destination: (%@, %@)", @(element->points[0].x), @(element->points[0].y), @(element->points[1].x), @(element->points[1].y));
             CGPoint absolutePoint1 = CGPointMake(context.origin.x + element->points[0].x, context.origin.y + element->points[0].y);
             CGPoint absolutePoint2 = CGPointMake(context.origin.x + element->points[1].x, context.origin.y + element->points[1].y);
             context.triangulator.quadraticTo(absolutePoint2, absolutePoint1);
             break;
         }
         case kCGPathElementAddCurveToPoint: {
-            //NSLog(@"Cubic curve. Control point 1: (%@, %@) Control point 2: (%@, %@) Destination: (%@, %@)", @(element->points[0].x), @(element->points[0].y), @(element->points[1].x), @(element->points[1].y), @(element->points[2].x), @(element->points[2].y));
-            CGPoint absolutePoint = CGPointMake(context.origin.x + element->points[2].x, context.origin.y + element->points[2].y);
-            context.triangulator.lineTo(absolutePoint);
+            CGPoint absolutePoint1 = CGPointMake(context.origin.x + element->points[0].x, context.origin.y + element->points[0].y);
+            CGPoint absolutePoint2 = CGPointMake(context.origin.x + element->points[1].x, context.origin.y + element->points[1].y);
+            CGPoint absolutePoint3 = CGPointMake(context.origin.x + element->points[2].x, context.origin.y + element->points[2].y);
+            context.triangulator.cubicTo(absolutePoint3, absolutePoint1, absolutePoint2);
             break;
         }
         case kCGPathElementCloseSubpath:
-            //NSLog(@"Closing subpath");
-            context.triangulator.lineTo(context.subpathStart);
+            context.triangulator.close();
             break;
         default:
             assert(false);
@@ -153,13 +202,13 @@ static void pathIterator(void *info, const CGPathElement *element) {
 }
 
 void triangulatorAppendPath(Triangulator* triangulator, CGPathRef path, CGPoint origin) {
-    triangulator->path(path, origin);
     triangulator->moveTo(origin);
     struct PathIteratorContext context(*triangulator, origin);
     CGPathApply(path, &context, &pathIterator);
 }
 
-void triangulatorTriangulate(Triangulator*) {
+void triangulatorTriangulate(Triangulator* triangulator) {
+    triangulator->mark();
 }
 
 void triangulatorApply(Triangulator* triangulator, TriangleIterator iterator, void* context) {
