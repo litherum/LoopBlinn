@@ -14,6 +14,7 @@
 @interface TriangulationContext : NSObject
 @property NSMutableArray *vertices;
 @property NSMutableArray *coordinates;
+@property NSMutableArray *orientations;
 @end
 
 @implementation TriangulationContext
@@ -22,6 +23,7 @@
     if (self != nil) {
         _vertices = [NSMutableArray new];
         _coordinates = [NSMutableArray new];
+        _orientations = [NSMutableArray new];
     }
     return self;
 }
@@ -48,9 +50,9 @@
     assert(pixelFormat);
     NSOpenGLContext *context = [[NSOpenGLContext alloc] initWithFormat:pixelFormat shareContext:nil];
     assert(context);
-    [self setPixelFormat:pixelFormat];
-    [self setOpenGLContext:context];
-    [self setWantsBestResolutionOpenGLSurface:YES];
+    self.pixelFormat = pixelFormat;
+    self.openGLContext = context;
+    self.wantsBestResolutionOpenGLSurface = YES;
     _pointCount = 0;
     _sizeUniformLocation = -1;
     _program = 0;
@@ -60,23 +62,26 @@
 
 - (void)update {
     [super update];
-    glViewport([self bounds].origin.x, [self bounds].origin.y, [self bounds].size.width, [self bounds].size.height);
-    glUniform2f(_sizeUniformLocation, [self bounds].size.width, [self bounds].size.height);
+    glViewport(self.bounds.origin.x, self.bounds.origin.y, self.bounds.size.width, self.bounds.size.height);
+    glUniform2f(_sizeUniformLocation, self.bounds.size.width, self.bounds.size.height);
     TriangulationContext *context = [self triangulate];
     assert(context.vertices.count == context.coordinates.count);
+    assert(context.vertices.count == context.orientations.count * 3);
     _pointCount = (GLsizei)context.vertices.count;
-    GLfloat pointsArray[_pointCount * 4];
+    NSMutableData *data = [NSMutableData dataWithLength:_pointCount * 5 * sizeof(GLfloat)];
+    GLfloat *p = [data mutableBytes];
     for (NSUInteger i = 0; i < _pointCount; ++i) {
         CGPoint point;
         [[context.vertices objectAtIndex:i] getValue:&point];
-        pointsArray[i * 4 + 0] = point.x;
-        pointsArray[i * 4 + 1] = point.y;
+        p[i * 5 + 0] = point.x;
+        p[i * 5 + 1] = point.y;
         [[context.coordinates objectAtIndex:i] getValue:&point];
-        pointsArray[i * 4 + 2] = point.x;
-        pointsArray[i * 4 + 3] = point.y;
+        p[i * 5 + 2] = point.x;
+        p[i * 5 + 3] = point.y;
+        p[i * 5 + 4] = [[context.orientations objectAtIndex:i / 3] boolValue] ? 1 : 0;
     }
-    glBufferData(GL_ARRAY_BUFFER, sizeof(pointsArray), pointsArray, GL_STATIC_DRAW);
-    //NSLog(@"Update to (%@, %@) x (%@, %@)", @([self bounds].origin.x), @([self bounds].origin.y), @([self bounds].size.width), @([self bounds].size.height));
+    glBufferData(GL_ARRAY_BUFFER, data.length, data.bytes, GL_STATIC_DRAW);
+    //NSLog(@"Update to (%@, %@) x (%@, %@)", @(self.bounds.origin.x), @(self.bounds.origin.y), @(self.bounds.size.width), @(self.bounds.size.height));
 }
 
 - (void)prepareOpenGL {
@@ -89,9 +94,10 @@
     GLint majorVersion, minorVersion;
     glGetIntegerv(GL_MAJOR_VERSION, &majorVersion);
     glGetIntegerv(GL_MINOR_VERSION, &minorVersion);
-    NSLog(@"OpenGL %@.%@", @(majorVersion), @(minorVersion));
+    //NSLog(@"OpenGL %@.%@", @(majorVersion), @(minorVersion));
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glEnable(GL_BLEND);
 
     NSBundle *bundle = [NSBundle mainBundle];
     NSString *vertexPath = [bundle pathForResource:@"Vertex" ofType:@"vs"];
@@ -113,8 +119,18 @@
     glCompileShader(fragmentShader);
     GLint status;
     glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &status);
+    GLint logSize = 0;
+    glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &logSize);
+    NSMutableData *log = [NSMutableData dataWithCapacity:logSize];
+    glGetShaderInfoLog(vertexShader, logSize, NULL, [log mutableBytes]);
+    NSLog(@"%s", [log bytes]);
     assert(status == GL_TRUE);
     glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &status);
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &status);
+    glGetShaderiv(fragmentShader, GL_INFO_LOG_LENGTH, &logSize);
+    log = [NSMutableData dataWithCapacity:logSize];
+    glGetShaderInfoLog(fragmentShader, logSize, NULL, [log mutableBytes]);
+    NSLog(@"%s", [log bytes]);
     assert(status == GL_TRUE);
 
     _program = glCreateProgram();
@@ -125,14 +141,17 @@
     glBindFragDataLocation(_program, 0, "outColor");
     glLinkProgram(_program);
     glGetProgramiv(_program, GL_LINK_STATUS, &status);
+    glGetProgramiv(_program, GL_INFO_LOG_LENGTH, &logSize);
+    log = [NSMutableData dataWithCapacity:logSize];
+    glGetProgramInfoLog(_program, logSize, NULL, [log mutableBytes]);
+    NSLog(@"%s", [log bytes]);
     assert(status == GL_TRUE);
 
     glUseProgram(_program);
     GLint positionAttributeLocation = glGetAttribLocation(_program, "position");
     GLint coordinateAttributeLocation = glGetAttribLocation(_program, "coordinate");
-    NSLog(@"Position attribute location: %@ Coordinate attribute location: %@", @(positionAttributeLocation), @(coordinateAttributeLocation));
+    GLint orientationAttributeLocation = glGetAttribLocation(_program, "orientation");
     _sizeUniformLocation = glGetUniformLocation(_program, "size");
-    NSLog(@"Size uniform location: %@", @(_sizeUniformLocation));
 
     glGenVertexArrays(1, &_vertexArray);
     glBindVertexArray(_vertexArray);
@@ -141,19 +160,21 @@
     glBindBuffer(GL_ARRAY_BUFFER, _vbo);
     glEnableVertexAttribArray(positionAttributeLocation);
     glEnableVertexAttribArray(coordinateAttributeLocation);
-    glVertexAttribPointer(positionAttributeLocation, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
-    glVertexAttribPointer(coordinateAttributeLocation, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(orientationAttributeLocation);
+    glVertexAttribPointer(positionAttributeLocation, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), 0);
+    glVertexAttribPointer(coordinateAttributeLocation, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
+    glVertexAttribPointer(orientationAttributeLocation, 1, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(4 * sizeof(GLfloat)));
 
-    glUniform2f(_sizeUniformLocation, [self bounds].size.width, [self bounds].size.height);
+    glUniform2f(_sizeUniformLocation, self.bounds.size.width, self.bounds.size.height);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport([self bounds].origin.x, [self bounds].origin.y, [self bounds].size.width, [self bounds].size.height);
+    glViewport(self.bounds.origin.x, self.bounds.origin.y, self.bounds.size.width, self.bounds.size.height);
 
     GLenum glError = glGetError();
     assert(glError == GL_NO_ERROR);
 }
 
-static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, CGPoint c1, CGPoint c2, CGPoint c3) {
+static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, CGPoint c1, CGPoint c2, CGPoint c3, bool orientation) {
     TriangulationContext *context = (__bridge TriangulationContext*)c;
     [context.vertices addObject:[NSValue value:&p1 withObjCType:@encode(CGPoint)]];
     [context.vertices addObject:[NSValue value:&p2 withObjCType:@encode(CGPoint)]];
@@ -161,10 +182,11 @@ static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, CGPoin
     [context.coordinates addObject:[NSValue value:&c1 withObjCType:@encode(CGPoint)]];
     [context.coordinates addObject:[NSValue value:&c2 withObjCType:@encode(CGPoint)]];
     [context.coordinates addObject:[NSValue value:&c3 withObjCType:@encode(CGPoint)]];
+    [context.orientations addObject:[NSNumber numberWithBool:orientation]];
 }
 
 - (TriangulationContext *)triangulate {
-    //NSLog(@"Bounds: (%@, %@) x (%@, %@)", @([self bounds].origin.x), @([self bounds].origin.y), @([self bounds].size.width), @([self bounds].size.height));
+    //NSLog(@"Bounds: (%@, %@) x (%@, %@)", @(self.bounds.origin.x), @(self.bounds.origin.y), @(self.bounds.size.width), @(self.bounds.size.height));
     CTFontRef font = CTFontCreateWithName((__bridge CFStringRef)@"Arial", 500, NULL);
     CFDictionaryRef attributes = CFDictionaryCreate(kCFAllocatorDefault, (const void**)&kCTFontAttributeName, (const void**)&font, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
     CFAttributedStringRef attributedString = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("efgh"), attributes);
@@ -172,7 +194,7 @@ static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, CGPoin
     CFRelease(attributedString);
     CFRelease(attributes);
     CFRelease(font);
-    CGPathRef path = CGPathCreateWithRect([self bounds], NULL);
+    CGPathRef path = CGPathCreateWithRect(self.bounds, NULL);
     CTFrameRef frame = CTFramesetterCreateFrame(framesetter, CFRangeMake(0, 0), path, NULL);
     CFRelease(path);
     CFRelease(framesetter);

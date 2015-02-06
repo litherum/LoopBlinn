@@ -51,8 +51,13 @@ struct Triangulator {
 
     void quadraticTo(CGPoint destination, CGPoint control) {
         std::array<CGPoint, 3> quadraticCurve{{CGPointMake(currentPosition->point().x(), currentPosition->point().y()), control, destination}};
-        quadraticCurves.emplace_back(std::move(quadraticCurve));
-        lineTo(destination);
+        bool orientation = CGAL::cross_product(CGAL::Vector_3<K>(control.x - currentPosition->point().x(), control.y - currentPosition->point().y(), 0), CGAL::Vector_3<K>(destination.x - currentPosition->point().x(), destination.y - currentPosition->point().y(), 0)).z() > 0;
+        quadraticCurves.emplace_back(std::make_pair(std::move(quadraticCurve), std::move(orientation)));
+        if (orientation) {
+            lineTo(control);
+            lineTo(destination);
+        } else
+            lineTo(destination);
     }
 
     void path(CGPathRef path, CGPoint origin) {
@@ -66,18 +71,18 @@ struct Triangulator {
                 continue;
             CGPoint middle = CGPointMake((i->vertex(0)->point().x() + i->vertex(1)->point().x() + i->vertex(2)->point().x()) / 3, (i->vertex(0)->point().y() + i->vertex(1)->point().y() + i->vertex(2)->point().y()) / 3);
             for (auto& path : paths) {
+                // FIXME: This conditional is very wrong
                 if (CGPathContainsPoint(path.first.get(), NULL, CGPointMake(middle.x - path.second.x, middle.y - path.second.y), true)) { // FIXME: EO rule?
                     iterator(context, CGPointMake(i->vertex(0)->point().x(), i->vertex(0)->point().y()),
                                       CGPointMake(i->vertex(1)->point().x(), i->vertex(1)->point().y()),
                                       CGPointMake(i->vertex(2)->point().x(), i->vertex(2)->point().y()),
-                                      CGPointMake(0, 1), CGPointMake(0, 1), CGPointMake(0, 1));
+                                      CGPointMake(0, 1), CGPointMake(0, 1), CGPointMake(0, 1), false);
                     break;
                 }
             }
         }
-        for (auto& quad : quadraticCurves) {
-            iterator(context, quad[0], quad[1], quad[2], CGPointMake(0, 0), CGPointMake(0.5, 0), CGPointMake(1, 1));
-        }
+        for (auto& quad : quadraticCurves)
+            iterator(context, quad.first[0], quad.first[1], quad.first[2], CGPointMake(0, 0), CGPointMake(0.5, 0), CGPointMake(1, 1), quad.second);
         //std::cout << "Done with triangles" << std::endl;
     }
 
@@ -85,7 +90,7 @@ private:
     CDT cdt;
     std::vector<std::pair<CFPtr<CGPathRef>, CGPoint>> paths;
     CDT::Vertex_handle currentPosition;
-    std::vector<std::array<CGPoint, 3>> quadraticCurves;
+    std::vector<std::pair<std::array<CGPoint, 3>, bool>> quadraticCurves;
 };
 
 Triangulator* createTriangulator() {
