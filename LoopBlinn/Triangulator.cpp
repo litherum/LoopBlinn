@@ -90,7 +90,7 @@ static inline std::pair<std::array<std::array<CGFloat, 3>, 4>, bool> lineOrPoint
     }}, false);
 }
 
-static inline std::pair<std::array<std::array<CGFloat, 3>, 4>, bool> cubic(CGPoint b0i, CGPoint b1i, CGPoint b2i, CGPoint b3i) {
+static inline std::array<std::array<CGFloat, 3>, 4> cubic(CGPoint b0i, CGPoint b1i, CGPoint b2i, CGPoint b3i) {
     CGAL::Vector_3<K> b0(b0i.x, b0i.y, 1);
     CGAL::Vector_3<K> b1(b1i.x, b1i.y, 1);
     CGAL::Vector_3<K> b2(b2i.x, b2i.y, 1);
@@ -106,31 +106,37 @@ static inline std::pair<std::array<std::array<CGFloat, 3>, 4>, bool> cubic(CGPoi
     d1 = u.x();
     d2 = u.y();
     d3 = u.z();
-    
+
+    std::pair<std::array<std::array<CGFloat, 3>, 4>, bool> result;
     CGFloat discr(d1 * d1 * (3 * d2 * d2 - 4 * d1 * d3));
     if (b0 == b1 && b0 == b2 && b0 == b3)
-        return lineOrPoint(d1, d2, d3);
-    if (d1 == 0 && d2 == 0 && d3 == 0)
-        return lineOrPoint(d1, d2, d3);
-    if (d1 == 0 && d2 == 0)
-        return quadratic(d1, d2, d3);
-    if (discr > 0)
-        return serpentine(d1, d2, d3);
+        result = lineOrPoint(d1, d2, d3);
+    else if (d1 == 0 && d2 == 0 && d3 == 0)
+        result = lineOrPoint(d1, d2, d3);
+    else if (d1 == 0 && d2 == 0)
+        result = quadratic(d1, d2, d3);
+    else if (discr > 0)
+        result = serpentine(d1, d2, d3);
     else if (discr < 0)
-        return loop(d1, d2, d3);
-    return cusp(d1, d2, d3);
+        result = loop(d1, d2, d3);
+    else
+        result = cusp(d1, d2, d3);
+
+    if (result.second)
+        for (auto& i : result.first)
+            for (size_t j(0); j < 2; ++j)
+                i[j] *= -1;
+    return result.first;
 }
 
 struct CubicCurve {
-    CubicCurve(std::array<CGPoint, 4>&& vertices, std::array<std::array<CGFloat, 3>, 4>&& coordinates, bool orientation)
+    CubicCurve(std::array<CGPoint, 4>&& vertices, std::array<std::array<CGFloat, 3>, 4>&& coordinates)
         : vertices(std::move(vertices))
         , coordinates(std::move(coordinates))
-        , orientation(orientation)
     {
     }
     std::array<CGPoint, 4> vertices;
     std::array<std::array<CGFloat, 3>, 4> coordinates;
-    bool orientation;
 };
 
 static inline CGPoint lerp(CGPoint a, CGPoint b, CGFloat scalar) {
@@ -182,7 +188,7 @@ struct Triangulator {
         CGAL::Vector_2<K> dd(destination.x - currentPosition->point().x(), destination.y - currentPosition->point().y());
         bool orientation1 = orientTurn(dc1, dd);
         bool orientation2 = orientTurn(dc2, dd);
-        auto coordinatesAndOrientation(cubic(vertices[0], vertices[1], vertices[2], vertices[3]));
+        auto coordinates(cubic(vertices[0], vertices[1], vertices[2], vertices[3]));
 
         std::array<size_t, 4> order;
         if (orientation1 != orientation2) {
@@ -202,12 +208,9 @@ struct Triangulator {
                 order = {2, 1, 0, 3};
         }
         std::array<CGPoint, 4> rearrangedVertices{{vertices[order[0]], vertices[order[1]], vertices[order[2]], vertices[order[3]]}};
-        std::array<std::array<CGFloat, 3>, 4> rearrangedCoordinates{{coordinatesAndOrientation.first[order[0]],
-                                                                     coordinatesAndOrientation.first[order[1]],
-                                                                     coordinatesAndOrientation.first[order[2]],
-                                                                     coordinatesAndOrientation.first[order[3]]}};
+        std::array<std::array<CGFloat, 3>, 4> rearrangedCoordinates{{coordinates[order[0]], coordinates[order[1]], coordinates[order[2]], coordinates[order[3]]}};
 
-        cubicCurves.emplace_back(std::move(rearrangedVertices), std::move(rearrangedCoordinates), coordinatesAndOrientation.second);
+        cubicCurves.emplace_back(std::move(rearrangedVertices), std::move(rearrangedCoordinates));
         if (orientation1 && orientation2) {
             if (dc1 * dd < dc2 * dd) {
                 lineTo(control1);
@@ -273,7 +276,7 @@ struct Triangulator {
                 iterator(context, CGPointMake(i->vertex(0)->point().x(), i->vertex(0)->point().y()),
                                   CGPointMake(i->vertex(1)->point().x(), i->vertex(1)->point().y()),
                                   CGPointMake(i->vertex(2)->point().x(), i->vertex(2)->point().y()),
-                                  {0, 1, 1}, {0, 1, 1}, {0, 1, 1}, false);
+                                  {0, 1, 1}, {0, 1, 1}, {0, 1, 1});
         }
 
         for (auto& cubicCurve : cubicCurves) {
@@ -281,14 +284,12 @@ struct Triangulator {
                 cubicCurve.vertices[0], cubicCurve.vertices[1], cubicCurve.vertices[2],
                 {cubicCurve.coordinates[0][0], cubicCurve.coordinates[0][1], cubicCurve.coordinates[0][2]},
                 {cubicCurve.coordinates[1][0], cubicCurve.coordinates[1][1], cubicCurve.coordinates[1][2]},
-                {cubicCurve.coordinates[2][0], cubicCurve.coordinates[2][1], cubicCurve.coordinates[2][2]},
-                cubicCurve.orientation);
+                {cubicCurve.coordinates[2][0], cubicCurve.coordinates[2][1], cubicCurve.coordinates[2][2]});
             iterator(context,
                 cubicCurve.vertices[3], cubicCurve.vertices[2], cubicCurve.vertices[1],
                 {cubicCurve.coordinates[3][0], cubicCurve.coordinates[3][1], cubicCurve.coordinates[3][2]},
                 {cubicCurve.coordinates[2][0], cubicCurve.coordinates[2][1], cubicCurve.coordinates[2][2]},
-                {cubicCurve.coordinates[1][0], cubicCurve.coordinates[1][1], cubicCurve.coordinates[1][2]},
-                cubicCurve.orientation);
+                {cubicCurve.coordinates[1][0], cubicCurve.coordinates[1][1], cubicCurve.coordinates[1][2]});
         }
     }
 

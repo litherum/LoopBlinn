@@ -1,7 +1,6 @@
 #version 410
 
 in vec3 coordinateV;
-flat in uint orientationV;
 
 out vec4 outColor;
 
@@ -10,7 +9,7 @@ void main() {
     float k = coordinateV.x;
     float l = coordinateV.y;
     float m = coordinateV.z;
-    if ((k * k * k - l * m < 0) ^^ bool(orientationV))
+    if (k * k * k - l * m < 0)
         outColor = vec4(1.0, 0.0, 0.0, 1.0);
     else
         outColor = vec4(0.0, 0.0, 0.0, 1.0);

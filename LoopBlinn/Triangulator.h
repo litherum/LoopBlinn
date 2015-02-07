@@ -26,7 +26,7 @@ void triangulatorAppendPath(Triangulator*, CGPathRef, CGPoint origin);
 
 void triangulatorTriangulate(Triangulator*);
 
-typedef void(*TriangleIterator)(void*, CGPoint, CGPoint, CGPoint, vector_double3, vector_double3, vector_double3, bool);
+typedef void(*TriangleIterator)(void*, CGPoint, CGPoint, CGPoint, vector_double3, vector_double3, vector_double3);
 void triangulatorApply(Triangulator*, TriangleIterator, void*);
 
 #ifdef __cplusplus

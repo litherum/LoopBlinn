@@ -18,11 +18,10 @@
 @property (nonatomic, readonly) vector_double3 coordinate1;
 @property (nonatomic, readonly) vector_double3 coordinate2;
 @property (nonatomic, readonly) vector_double3 coordinate3;
-@property (nonatomic, readonly) BOOL orientation;
 @end
 
 @implementation TriangulationItem
--(instancetype)initWithVertex1:(CGPoint)vertex1 vertex2:(CGPoint)vertex2 vertex3:(CGPoint)vertex3 coordinate1:(vector_double3)coordinate1 coordinate2:(vector_double3)coordinate2 coordinate3:(vector_double3)coordinate3 orientation:(BOOL)orientation {
+-(instancetype)initWithVertex1:(CGPoint)vertex1 vertex2:(CGPoint)vertex2 vertex3:(CGPoint)vertex3 coordinate1:(vector_double3)coordinate1 coordinate2:(vector_double3)coordinate2 coordinate3:(vector_double3)coordinate3 {
     self = [super init];
     if (self != nil) {
         _vertex1 = vertex1;
@@ -31,7 +30,6 @@
         _coordinate1 = coordinate1;
         _coordinate2 = coordinate2;
         _coordinate3 = coordinate3;
-        _orientation = orientation;
     }
     return self;
 }
@@ -76,28 +74,25 @@
     NSArray *context = [self triangulate];
     _pointCount = (GLsizei)context.count * 3;
 
-    NSMutableData *data = [NSMutableData dataWithLength:_pointCount * 6 * sizeof(GLfloat)];
+    NSMutableData *data = [NSMutableData dataWithLength:_pointCount * 5 * sizeof(GLfloat)];
     GLfloat *p = [data mutableBytes];
     for (NSUInteger i = 0; i < context.count; ++i) {
         TriangulationItem *item = [context objectAtIndex:i];
-        p[i * 18 + 0]  = item.vertex1.x;
-        p[i * 18 + 1]  = item.vertex1.y;
-        p[i * 18 + 2]  = item.coordinate1.x;
-        p[i * 18 + 3]  = item.coordinate1.y;
-        p[i * 18 + 4]  = item.coordinate1.z;
-        p[i * 18 + 5]  = item.orientation ? 1 : 0;
-        p[i * 18 + 6]  = item.vertex2.x;
-        p[i * 18 + 7]  = item.vertex2.y;
-        p[i * 18 + 8]  = item.coordinate2.x;
-        p[i * 18 + 9]  = item.coordinate2.y;
-        p[i * 18 + 10] = item.coordinate2.z;
-        p[i * 18 + 11] = item.orientation ? 1 : 0;
-        p[i * 18 + 12] = item.vertex3.x;
-        p[i * 18 + 13] = item.vertex3.y;
-        p[i * 18 + 14] = item.coordinate3.x;
-        p[i * 18 + 15] = item.coordinate3.y;
-        p[i * 18 + 16] = item.coordinate3.z;
-        p[i * 18 + 17] = item.orientation ? 1 : 0;
+        p[i * 15 + 0]  = item.vertex1.x;
+        p[i * 15 + 1]  = item.vertex1.y;
+        p[i * 15 + 2]  = item.coordinate1.x;
+        p[i * 15 + 3]  = item.coordinate1.y;
+        p[i * 15 + 4]  = item.coordinate1.z;
+        p[i * 15 + 5]  = item.vertex2.x;
+        p[i * 15 + 6]  = item.vertex2.y;
+        p[i * 15 + 7]  = item.coordinate2.x;
+        p[i * 15 + 8]  = item.coordinate2.y;
+        p[i * 15 + 9]  = item.coordinate2.z;
+        p[i * 15 + 10] = item.vertex3.x;
+        p[i * 15 + 11] = item.vertex3.y;
+        p[i * 15 + 12] = item.coordinate3.x;
+        p[i * 15 + 13] = item.coordinate3.y;
+        p[i * 15 + 14] = item.coordinate3.z;
     }
     glBufferData(GL_ARRAY_BUFFER, data.length, data.bytes, GL_STATIC_DRAW);
 }
@@ -168,7 +163,6 @@
     glUseProgram(_program);
     GLint positionAttributeLocation = glGetAttribLocation(_program, "position");
     GLint coordinateAttributeLocation = glGetAttribLocation(_program, "coordinate");
-    GLint orientationAttributeLocation = glGetAttribLocation(_program, "orientation");
     _sizeUniformLocation = glGetUniformLocation(_program, "size");
 
     glGenVertexArrays(1, &_vertexArray);
@@ -178,10 +172,8 @@
     glBindBuffer(GL_ARRAY_BUFFER, _vbo);
     glEnableVertexAttribArray(positionAttributeLocation);
     glEnableVertexAttribArray(coordinateAttributeLocation);
-    glEnableVertexAttribArray(orientationAttributeLocation);
-    glVertexAttribPointer(positionAttributeLocation, 2, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
-    glVertexAttribPointer(coordinateAttributeLocation, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
-    glVertexAttribPointer(orientationAttributeLocation, 1, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (void*)(5 * sizeof(GLfloat)));
+    glVertexAttribPointer(positionAttributeLocation, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), 0);
+    glVertexAttribPointer(coordinateAttributeLocation, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(2 * sizeof(GLfloat)));
 
     glUniform2f(_sizeUniformLocation, self.bounds.size.width, self.bounds.size.height);
 
@@ -192,9 +184,9 @@
     assert(glError == GL_NO_ERROR);
 }
 
-static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, vector_double3 c1, vector_double3 c2, vector_double3 c3, bool orientation) {
+static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, vector_double3 c1, vector_double3 c2, vector_double3 c3) {
     NSMutableArray *context = (__bridge NSMutableArray*)c;
-    [context addObject:[[TriangulationItem alloc] initWithVertex1:p1 vertex2:p2 vertex3:p3 coordinate1:c1 coordinate2:c2 coordinate3:c3 orientation:orientation]];
+    [context addObject:[[TriangulationItem alloc] initWithVertex1:p1 vertex2:p2 vertex3:p3 coordinate1:c1 coordinate2:c2 coordinate3:c3]];
 }
 
 - (NSArray *)triangulate {
