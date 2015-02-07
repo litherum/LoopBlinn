@@ -11,19 +11,27 @@
 #import "LoopBlinnView.h"
 #import "Triangulator.h"
 
-@interface TriangulationContext : NSObject
-@property NSMutableArray *vertices;
-@property NSMutableArray *coordinates;
-@property NSMutableArray *orientations;
+@interface TriangulationItem : NSObject
+@property (nonatomic, readonly) CGPoint vertex1;
+@property (nonatomic, readonly) CGPoint vertex2;
+@property (nonatomic, readonly) CGPoint vertex3;
+@property (nonatomic, readonly) vector_double3 coordinate1;
+@property (nonatomic, readonly) vector_double3 coordinate2;
+@property (nonatomic, readonly) vector_double3 coordinate3;
+@property (nonatomic, readonly) BOOL orientation;
 @end
 
-@implementation TriangulationContext
--(instancetype)init {
+@implementation TriangulationItem
+-(instancetype)initWithVertex1:(CGPoint)vertex1 vertex2:(CGPoint)vertex2 vertex3:(CGPoint)vertex3 coordinate1:(vector_double3)coordinate1 coordinate2:(vector_double3)coordinate2 coordinate3:(vector_double3)coordinate3 orientation:(BOOL)orientation {
     self = [super init];
     if (self != nil) {
-        _vertices = [NSMutableArray new];
-        _coordinates = [NSMutableArray new];
-        _orientations = [NSMutableArray new];
+        _vertex1 = vertex1;
+        _vertex2 = vertex2;
+        _vertex3 = vertex3;
+        _coordinate1 = coordinate1;
+        _coordinate2 = coordinate2;
+        _coordinate3 = coordinate3;
+        _orientation = orientation;
     }
     return self;
 }
@@ -60,95 +68,37 @@
     _vertexArray = 0;
 }
 
-void testTriangulatorIterator(void* context, CGPoint a, CGPoint b, CGPoint c, CGPoint d, vector_double3 ca, vector_double3 cb, vector_double3 cc, vector_double3 cd, bool o) {
-    NSMutableArray *data = (__bridge NSMutableArray*)context;
-    [data addObject:@(ca.x)];
-    [data addObject:@(ca.y)];
-    [data addObject:@(ca.z)];
-    [data addObject:@(cb.x)];
-    [data addObject:@(cb.y)];
-    [data addObject:@(cb.z)];
-    [data addObject:@(cc.x)];
-    [data addObject:@(cc.y)];
-    [data addObject:@(cc.z)];
-    [data addObject:@(cd.x)];
-    [data addObject:@(cd.y)];
-    [data addObject:@(cd.z)];
-    [data addObject:@(o)];
-}
-
 - (void)update {
     [super update];
     glViewport(self.bounds.origin.x, self.bounds.origin.y, self.bounds.size.width, self.bounds.size.height);
     glUniform2f(_sizeUniformLocation, self.bounds.size.width, self.bounds.size.height);
-    /*
-    TriangulationContext *context = [self triangulate];
-    assert(context.vertices.count == context.coordinates.count);
-    assert(context.vertices.count == context.orientations.count * 3);
-    _pointCount = (GLsizei)context.vertices.count;
-    */
-    _pointCount = 6;
-    NSMutableData *data = [NSMutableData dataWithLength:/*_pointCount * 5*/ 36 * sizeof(GLfloat)];
+
+    NSArray *context = [self triangulate];
+    _pointCount = (GLsizei)context.count * 3;
+
+    NSMutableData *data = [NSMutableData dataWithLength:_pointCount * 6 * sizeof(GLfloat)];
     GLfloat *p = [data mutableBytes];
-    /*
-    for (NSUInteger i = 0; i < _pointCount; ++i) {
-        CGPoint point;
-        [[context.vertices objectAtIndex:i] getValue:&point];
-        p[i * 5 + 0] = point.x;
-        p[i * 5 + 1] = point.y;
-        [[context.coordinates objectAtIndex:i] getValue:&point];
-        p[i * 5 + 2] = point.x;
-        p[i * 5 + 3] = point.y;
-        p[i * 5 + 4] = [[context.orientations objectAtIndex:i / 3] boolValue] ? 1 : 0;
+    for (NSUInteger i = 0; i < context.count; ++i) {
+        TriangulationItem *item = [context objectAtIndex:i];
+        p[i * 18 + 0]  = item.vertex1.x;
+        p[i * 18 + 1]  = item.vertex1.y;
+        p[i * 18 + 2]  = item.coordinate1.x;
+        p[i * 18 + 3]  = item.coordinate1.y;
+        p[i * 18 + 4]  = item.coordinate1.z;
+        p[i * 18 + 5]  = item.orientation ? 1 : 0;
+        p[i * 18 + 6]  = item.vertex2.x;
+        p[i * 18 + 7]  = item.vertex2.y;
+        p[i * 18 + 8]  = item.coordinate2.x;
+        p[i * 18 + 9]  = item.coordinate2.y;
+        p[i * 18 + 10] = item.coordinate2.z;
+        p[i * 18 + 11] = item.orientation ? 1 : 0;
+        p[i * 18 + 12] = item.vertex3.x;
+        p[i * 18 + 13] = item.vertex3.y;
+        p[i * 18 + 14] = item.coordinate3.x;
+        p[i * 18 + 15] = item.coordinate3.y;
+        p[i * 18 + 16] = item.coordinate3.z;
+        p[i * 18 + 17] = item.orientation ? 1 : 0;
     }
-    */
-    CGPoint a = CGPointMake(100, 100);
-    CGPoint b = CGPointMake(200, 200);
-    CGPoint c = CGPointMake(300, 200);
-    CGPoint d = CGPointMake(400, 100);
-
-    Triangulator* triangulator = createTriangulator();
-    triangulatorCubic(triangulator, a, b, c, d);
-    NSMutableArray *cubicCoordinates = [NSMutableArray new];
-    triangulatorApply(triangulator, testTriangulatorIterator, (__bridge void*)cubicCoordinates);
-    destroyTriangulator(triangulator);
-
-    p[0] = a.x;
-    p[1] = a.y;
-    p[2] = [[cubicCoordinates objectAtIndex:0] floatValue];
-    p[3] = [[cubicCoordinates objectAtIndex:1] floatValue];
-    p[4] = [[cubicCoordinates objectAtIndex:2] floatValue];
-    p[5] = [[cubicCoordinates objectAtIndex:12] boolValue];
-    p[6] = b.x;
-    p[7] = b.y;
-    p[8] = [[cubicCoordinates objectAtIndex:3] floatValue];
-    p[9] = [[cubicCoordinates objectAtIndex:4] floatValue];
-    p[10] = [[cubicCoordinates objectAtIndex:5] floatValue];
-    p[11] = [[cubicCoordinates objectAtIndex:12] boolValue];
-    p[12] = c.x;
-    p[13] = c.y;
-    p[14] = [[cubicCoordinates objectAtIndex:6] floatValue];
-    p[15] = [[cubicCoordinates objectAtIndex:7] floatValue];
-    p[16] = [[cubicCoordinates objectAtIndex:8] floatValue];
-    p[17] = [[cubicCoordinates objectAtIndex:12] boolValue];
-    p[18] = a.x;
-    p[19] = a.y;
-    p[20] = [[cubicCoordinates objectAtIndex:0] floatValue];
-    p[21] = [[cubicCoordinates objectAtIndex:1] floatValue];
-    p[22] = [[cubicCoordinates objectAtIndex:2] floatValue];
-    p[23] = [[cubicCoordinates objectAtIndex:12] boolValue];
-    p[24] = c.x;
-    p[25] = c.y;
-    p[26] = [[cubicCoordinates objectAtIndex:6] floatValue];
-    p[27] = [[cubicCoordinates objectAtIndex:7] floatValue];
-    p[28] = [[cubicCoordinates objectAtIndex:8] floatValue];
-    p[29] = [[cubicCoordinates objectAtIndex:12] boolValue];
-    p[30] = d.x;
-    p[31] = d.y;
-    p[32] = [[cubicCoordinates objectAtIndex:9] floatValue];
-    p[33] = [[cubicCoordinates objectAtIndex:10] floatValue];
-    p[34] = [[cubicCoordinates objectAtIndex:11] floatValue];
-    p[35] = [[cubicCoordinates objectAtIndex:12] boolValue];
     glBufferData(GL_ARRAY_BUFFER, data.length, data.bytes, GL_STATIC_DRAW);
 }
 
@@ -242,18 +192,12 @@ void testTriangulatorIterator(void* context, CGPoint a, CGPoint b, CGPoint c, CG
     assert(glError == GL_NO_ERROR);
 }
 
-static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, CGPoint c1, CGPoint c2, CGPoint c3, bool orientation) {
-    TriangulationContext *context = (__bridge TriangulationContext*)c;
-    [context.vertices addObject:[NSValue value:&p1 withObjCType:@encode(CGPoint)]];
-    [context.vertices addObject:[NSValue value:&p2 withObjCType:@encode(CGPoint)]];
-    [context.vertices addObject:[NSValue value:&p3 withObjCType:@encode(CGPoint)]];
-    [context.coordinates addObject:[NSValue value:&c1 withObjCType:@encode(CGPoint)]];
-    [context.coordinates addObject:[NSValue value:&c2 withObjCType:@encode(CGPoint)]];
-    [context.coordinates addObject:[NSValue value:&c3 withObjCType:@encode(CGPoint)]];
-    [context.orientations addObject:[NSNumber numberWithBool:orientation]];
+static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, vector_double3 c1, vector_double3 c2, vector_double3 c3, bool orientation) {
+    NSMutableArray *context = (__bridge NSMutableArray*)c;
+    [context addObject:[[TriangulationItem alloc] initWithVertex1:p1 vertex2:p2 vertex3:p3 coordinate1:c1 coordinate2:c2 coordinate3:c3 orientation:orientation]];
 }
 
-- (TriangulationContext *)triangulate {
+- (NSArray *)triangulate {
     CTFontRef font = CTFontCreateWithName((__bridge CFStringRef)@"Arial", 300, NULL);
     CFDictionaryRef attributes = CFDictionaryCreate(kCFAllocatorDefault, (const void**)&kCTFontAttributeName, (const void**)&font, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
     CFAttributedStringRef attributedString = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("efgh"), attributes);
@@ -296,9 +240,20 @@ static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, CGPoin
         }
     }
     CFRelease(frame);
-    TriangulationContext *context = [TriangulationContext new];
+/*
+    {
+        CGMutablePathRef path = CGPathCreateMutable();
+        CGPathMoveToPoint(path, NULL, 100, 100);
+        CGPathAddCurveToPoint(path, NULL, 200, 200, 300, 200, 400, 100);
+        CGPathAddLineToPoint(path, NULL, 250, 0);
+        CGPathCloseSubpath(path);
+        triangulatorAppendPath(triangulator, path, CGPointMake(100, 100));
+        CFRelease(path);
+    }
+*/
+    NSMutableArray *context = [NSMutableArray new];
     triangulatorTriangulate(triangulator);
-    //triangulatorApply(triangulator, triangleIterator, (__bridge void*)context);
+    triangulatorApply(triangulator, triangleIterator, (__bridge void*)context);
     destroyTriangulator(triangulator);
     return context;
 }

@@ -13,5 +13,5 @@ void main() {
     if ((k * k * k - l * m < 0) ^^ bool(orientationV))
         outColor = vec4(1.0, 0.0, 0.0, 1.0);
     else
-        outColor = vec4(0.0, 1.0, 0.0, 1.0);
+        outColor = vec4(0.0, 0.0, 0.0, 1.0);
 }
