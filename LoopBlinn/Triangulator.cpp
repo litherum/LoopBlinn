@@ -57,13 +57,13 @@ static inline std::array<std::array<CGFloat, 3>, 4> loop(CGFloat d1, CGFloat d2,
     CGFloat mt(2 * d1);
     return std::array<std::array<CGFloat, 3>, 4>{{
         std::array<CGFloat, 3>{{ls * ms, ls * ls * ms, ls * ms * ms}},
-        std::array<CGFloat, 3>{{(-ls * mt - lt * ms + ls * ms) / 3, ls * (ls * (mt - 3 * ms) + 2 * lt * ms) / -3, ms * (ls * (2 * mt - 3 * ms) + lt * ms) / -3}},
+        std::array<CGFloat, 3>{{(-ls * mt - lt * ms + 3 * ls * ms) / 3, ls * (ls * (mt - 3 * ms) + 2 * lt * ms) / -3, ms * (ls * (2 * mt - 3 * ms) + lt * ms) / -3}},
         std::array<CGFloat, 3>{{(lt * (mt - 2 * ms) + ls * (3 * ms - 2 * mt)) / 3, (lt - ls) * (ls * (2 * mt - 3 * ms) + lt * ms) / 3, (mt - ms) * (ls * (mt - 3 * ms) + 2 * lt * ms) / 3}},
         std::array<CGFloat, 3>{{(lt - ls) * (mt - ms), -(lt - ls) * (lt - ls) * (mt - ms), -(lt - ls) * (mt - ms) * (mt - ms)}}
     }};
 }
 
-static inline std::array<std::array<CGFloat, 3>, 4> cuspWithCuspAtInfinity(CGFloat d1, CGFloat d2, CGFloat d3) {
+static inline std::array<std::array<CGFloat, 3>, 4> cusp(CGFloat d1, CGFloat d2, CGFloat d3) {
     CGFloat ls(d3);
     CGFloat lt(3 * d2);
     return std::array<std::array<CGFloat, 3>, 4>{{
@@ -103,20 +103,24 @@ static inline std::array<std::array<CGFloat, 3>, 4> cubic(CGPoint b0i, CGPoint b
     CGFloat d1(a1 - 2 * a2 + 3 * a3);
     CGFloat d2(-a2 + 3 * a3);
     CGFloat d3(3 * a3);
-    CGFloat discr(3 * d2 * d2 - 4 * d1 * d3);
-    if (d1 != 0) {
-        if (discr > 0)
-            return serpentine(d1, d2, d3);
-        else if (discr < 0)
-            return loop(d1, d2, d3);
-        else
-            return serpentine(d1, d2, d3);
-    } else if (d2 != 0)
-        return cuspWithCuspAtInfinity(d1, d2, d3);
-    else if (d3 != 0)
-        return quadratic(d1, d2, d3);
-    else
+    CGAL::Vector_3<IK> u(d1, d2, d3);
+    u = u / std::sqrt(u.squared_length());
+    d1 = u.x();
+    d2 = u.y();
+    d3 = u.z();
+    
+    CGFloat discr(d1 * d1 * (3 * d2 * d2 - 4 * d1 * d3));
+    if (b0 == b1 && b0 == b2 && b0 == b3)
         return lineOrPoint(d1, d2, d3);
+    if (d1 == 0 && d2 == 0 && d3 == 0)
+        return lineOrPoint(d1, d2, d3);
+    if (d1 == 0 && d2 == 0)
+        return quadratic(d1, d2, d3);
+    if (discr > 0)
+        return serpentine(d1, d2, d3);
+    else if (discr < 0)
+        return loop(d1, d2, d3);
+    return cusp(d1, d2, d3);
 }
 
 struct CubicCurve {

@@ -34,7 +34,6 @@
     GLint _sizeUniformLocation;
     GLuint _program;
     GLuint _vbo;
-    GLuint _vboIndices;
     GLuint _vertexArray;
 }
 
@@ -89,7 +88,7 @@ void testTriangulatorIterator(void* context, CGPoint a, CGPoint b, CGPoint c, CG
     _pointCount = (GLsizei)context.vertices.count;
     */
     _pointCount = 6;
-    NSMutableData *data = [NSMutableData dataWithLength:/*_pointCount * 5*/ 24 * sizeof(GLfloat)];
+    NSMutableData *data = [NSMutableData dataWithLength:/*_pointCount * 5*/ 36 * sizeof(GLfloat)];
     GLfloat *p = [data mutableBytes];
     /*
     for (NSUInteger i = 0; i < _pointCount; ++i) {
@@ -105,7 +104,7 @@ void testTriangulatorIterator(void* context, CGPoint a, CGPoint b, CGPoint c, CG
     */
     CGPoint a = CGPointMake(100, 100);
     CGPoint b = CGPointMake(200, 200);
-    CGPoint c = CGPointMake(350, 200);
+    CGPoint c = CGPointMake(300, 200);
     CGPoint d = CGPointMake(400, 100);
 
     Triangulator* triangulator = createTriangulator();
@@ -132,23 +131,25 @@ void testTriangulatorIterator(void* context, CGPoint a, CGPoint b, CGPoint c, CG
     p[15] = [[cubicCoordinates objectAtIndex:7] floatValue];
     p[16] = [[cubicCoordinates objectAtIndex:8] floatValue];
     p[17] = [[cubicCoordinates objectAtIndex:12] boolValue];
-    p[18] = d.x;
-    p[19] = d.y;
-    p[20] = [[cubicCoordinates objectAtIndex:9] floatValue];
-    p[21] = [[cubicCoordinates objectAtIndex:10] floatValue];
-    p[22] = [[cubicCoordinates objectAtIndex:11] floatValue];
+    p[18] = a.x;
+    p[19] = a.y;
+    p[20] = [[cubicCoordinates objectAtIndex:0] floatValue];
+    p[21] = [[cubicCoordinates objectAtIndex:1] floatValue];
+    p[22] = [[cubicCoordinates objectAtIndex:2] floatValue];
     p[23] = [[cubicCoordinates objectAtIndex:12] boolValue];
+    p[24] = c.x;
+    p[25] = c.y;
+    p[26] = [[cubicCoordinates objectAtIndex:6] floatValue];
+    p[27] = [[cubicCoordinates objectAtIndex:7] floatValue];
+    p[28] = [[cubicCoordinates objectAtIndex:8] floatValue];
+    p[29] = [[cubicCoordinates objectAtIndex:12] boolValue];
+    p[30] = d.x;
+    p[31] = d.y;
+    p[32] = [[cubicCoordinates objectAtIndex:9] floatValue];
+    p[33] = [[cubicCoordinates objectAtIndex:10] floatValue];
+    p[34] = [[cubicCoordinates objectAtIndex:11] floatValue];
+    p[35] = [[cubicCoordinates objectAtIndex:12] boolValue];
     glBufferData(GL_ARRAY_BUFFER, data.length, data.bytes, GL_STATIC_DRAW);
-
-    NSMutableData *indexData = [NSMutableData dataWithLength:_pointCount * sizeof(GLuint) /* 5 * sizeof(GLfloat)*/];
-    GLuint *indexP = [indexData mutableBytes];
-    indexP[0] = 0;
-    indexP[1] = 1;
-    indexP[2] = 2;
-    indexP[3] = 0;
-    indexP[4] = 2;
-    indexP[5] = 3;
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexData.length, indexData.bytes, GL_STATIC_DRAW);
 }
 
 - (void)prepareOpenGL {
@@ -224,9 +225,7 @@ void testTriangulatorIterator(void* context, CGPoint a, CGPoint b, CGPoint c, CG
     glBindVertexArray(_vertexArray);
 
     glGenBuffers(1, &_vbo);
-    glGenBuffers(1, &_vboIndices);
     glBindBuffer(GL_ARRAY_BUFFER, _vbo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vboIndices);
     glEnableVertexAttribArray(positionAttributeLocation);
     glEnableVertexAttribArray(coordinateAttributeLocation);
     glEnableVertexAttribArray(orientationAttributeLocation);
@@ -306,8 +305,7 @@ static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, CGPoin
 
 - (void)drawRect:(NSRect)dirtyRect {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //glDrawArrays(GL_TRIANGLES, 0, _pointCount);
-    glDrawElements(GL_TRIANGLES, _pointCount, GL_UNSIGNED_INT, 0);
+    glDrawArrays(GL_TRIANGLES, 0, _pointCount);
     [[self openGLContext] flushBuffer];
     GLenum glError = glGetError();
     assert(glError == GL_NO_ERROR);
