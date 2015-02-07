@@ -35,62 +35,62 @@ typedef CGAL::Exact_predicates_tag                                Itag;
 typedef CGAL::Constrained_Delaunay_triangulation_2<K, TDS, Itag>  CDT;
 typedef CGAL::Polygon_2<K>                                        Polygon_2;
 
-static inline std::array<std::array<CGFloat, 3>, 4> serpentine(CGFloat d1, CGFloat d2, CGFloat d3) {
+static inline std::pair<std::array<std::array<CGFloat, 3>, 4>, bool> serpentine(CGFloat d1, CGFloat d2, CGFloat d3) {
     CGFloat ls(3 * d2 - std::sqrt(9 * d2 * d2 - 12 * d1 * d3));
     CGFloat lt(6 * d1);
     CGFloat ms(3 * d2 + std::sqrt(9 * d2 * d2 - 12 * d1 * d3));
     CGFloat mt(6 * d1);
-    return std::array<std::array<CGFloat, 3>, 4>{{
+    return std::make_pair(std::array<std::array<CGFloat, 3>, 4>{{
         std::array<CGFloat, 3>{{ls * ms, ls * ls * ls, ms * ms * ms}},
         std::array<CGFloat, 3>{{(3 * ls * ms - ls * mt - lt * ms) / 3, ls * ls * (ls - lt), ms * ms * (ms - mt)}},
         std::array<CGFloat, 3>{{(lt * (mt - 2 * ms) + ls * (3 * ms - 2 * mt)) / 3, (lt - ls) * (lt - ls) * ls, (mt - ms) * (mt - ms) * ms}},
         std::array<CGFloat, 3>{{(lt - ls) * (mt - ms), -(lt - ls) * (lt - ls) * (lt - ls), -(mt - ms) * (mt - ms) * (mt - ms)}}
-    }};
+    }}, d1 < 0);
 }
 
-static inline std::array<std::array<CGFloat, 3>, 4> loop(CGFloat d1, CGFloat d2, CGFloat d3) {
+static inline std::pair<std::array<std::array<CGFloat, 3>, 4>, bool> loop(CGFloat d1, CGFloat d2, CGFloat d3) {
     CGFloat ls(d2 - std::sqrt(4 * d1 * d3 - 3 * d2 * d2));
     CGFloat lt(2 * d1);
     CGFloat ms(d2 + std::sqrt(4 * d1 * d3 - 3 * d2 * d2));
     CGFloat mt(2 * d1);
-    return std::array<std::array<CGFloat, 3>, 4>{{
+    return std::make_pair(std::array<std::array<CGFloat, 3>, 4>{{
         std::array<CGFloat, 3>{{ls * ms, ls * ls * ms, ls * ms * ms}},
         std::array<CGFloat, 3>{{(-ls * mt - lt * ms + 3 * ls * ms) / 3, ls * (ls * (mt - 3 * ms) + 2 * lt * ms) / -3, ms * (ls * (2 * mt - 3 * ms) + lt * ms) / -3}},
         std::array<CGFloat, 3>{{(lt * (mt - 2 * ms) + ls * (3 * ms - 2 * mt)) / 3, (lt - ls) * (ls * (2 * mt - 3 * ms) + lt * ms) / 3, (mt - ms) * (ls * (mt - 3 * ms) + 2 * lt * ms) / 3}},
         std::array<CGFloat, 3>{{(lt - ls) * (mt - ms), -(lt - ls) * (lt - ls) * (mt - ms), -(lt - ls) * (mt - ms) * (mt - ms)}}
-    }};
+    }}, false); // FIXME: might need to subdivide and update orientation
 }
 
-static inline std::array<std::array<CGFloat, 3>, 4> cusp(CGFloat d1, CGFloat d2, CGFloat d3) {
+static inline std::pair<std::array<std::array<CGFloat, 3>, 4>, bool> cusp(CGFloat d1, CGFloat d2, CGFloat d3) {
     CGFloat ls(d3);
     CGFloat lt(3 * d2);
-    return std::array<std::array<CGFloat, 3>, 4>{{
+    return std::make_pair(std::array<std::array<CGFloat, 3>, 4>{{
         std::array<CGFloat, 3>{{ls, ls * ls * ls, 1}},
         std::array<CGFloat, 3>{{ls - lt / 3, ls * ls * (ls - lt), 1}},
         std::array<CGFloat, 3>{{ls - 2 * lt / 3, (ls - lt) * (ls - lt) * ls, 1}},
         std::array<CGFloat, 3>{{ls - lt, (ls - lt) * (ls - lt) * (ls - lt), 1}}
-    }};
+    }}, false);
 }
 
-static inline std::array<std::array<CGFloat, 3>, 4> quadratic(CGFloat d1, CGFloat d2, CGFloat d3) {
-    return std::array<std::array<CGFloat, 3>, 4>{{
+static inline std::pair<std::array<std::array<CGFloat, 3>, 4>, bool> quadratic(CGFloat d1, CGFloat d2, CGFloat d3) {
+    return std::make_pair(std::array<std::array<CGFloat, 3>, 4>{{
         std::array<CGFloat, 3>{{0, 0, 0}},
         std::array<CGFloat, 3>{{CGFloat(1) / 3, 0, CGFloat(1) / 3}},
         std::array<CGFloat, 3>{{CGFloat(2) / 3, CGFloat(1) / 3, CGFloat(2) / 3}},
         std::array<CGFloat, 3>{{1, 1, 1}}
-    }};
+    }}, d3 < 0);
 }
 
-static inline std::array<std::array<CGFloat, 3>, 4> lineOrPoint(CGFloat d1, CGFloat d2, CGFloat d3) {
-    return std::array<std::array<CGFloat, 3>, 4>{{
+static inline std::pair<std::array<std::array<CGFloat, 3>, 4>, bool> lineOrPoint(CGFloat d1, CGFloat d2, CGFloat d3) {
+    return std::make_pair(std::array<std::array<CGFloat, 3>, 4>{{
         std::array<CGFloat, 3>{{0, 0, 0}},
         std::array<CGFloat, 3>{{0, 0, 0}},
         std::array<CGFloat, 3>{{0, 0, 0}},
         std::array<CGFloat, 3>{{0, 0, 0}}
-    }};
+    }}, false);
 }
 
-static inline std::array<std::array<CGFloat, 3>, 4> cubic(CGPoint b0i, CGPoint b1i, CGPoint b2i, CGPoint b3i) {
+static inline std::pair<std::array<std::array<CGFloat, 3>, 4>, bool> cubic(CGPoint b0i, CGPoint b1i, CGPoint b2i, CGPoint b3i) {
     CGAL::Vector_3<K> b0(b0i.x, b0i.y, 1);
     CGAL::Vector_3<K> b1(b1i.x, b1i.y, 1);
     CGAL::Vector_3<K> b2(b2i.x, b2i.y, 1);
@@ -182,7 +182,7 @@ struct Triangulator {
         CGAL::Vector_2<K> dd(destination.x - currentPosition->point().x(), destination.y - currentPosition->point().y());
         bool orientation1 = orientTurn(dc1, dd);
         bool orientation2 = orientTurn(dc2, dd);
-        auto coordinates(cubic(vertices[0], vertices[1], vertices[2], vertices[3]));
+        auto coordinatesAndOrientation(cubic(vertices[0], vertices[1], vertices[2], vertices[3]));
 
         std::array<size_t, 4> order;
         if (orientation1 != orientation2) {
@@ -202,9 +202,12 @@ struct Triangulator {
                 order = {2, 1, 0, 3};
         }
         std::array<CGPoint, 4> rearrangedVertices{{vertices[order[0]], vertices[order[1]], vertices[order[2]], vertices[order[3]]}};
-        std::array<std::array<CGFloat, 3>, 4> rearrangedCoordinates{{coordinates[order[0]], coordinates[order[1]], coordinates[order[2]], coordinates[order[3]]}};
+        std::array<std::array<CGFloat, 3>, 4> rearrangedCoordinates{{coordinatesAndOrientation.first[order[0]],
+                                                                     coordinatesAndOrientation.first[order[1]],
+                                                                     coordinatesAndOrientation.first[order[2]],
+                                                                     coordinatesAndOrientation.first[order[3]]}};
 
-        cubicCurves.emplace_back(std::move(rearrangedVertices), std::move(rearrangedCoordinates), false);
+        cubicCurves.emplace_back(std::move(rearrangedVertices), std::move(rearrangedCoordinates), coordinatesAndOrientation.second);
         if (orientation1 && orientation2) {
             if (dc1 * dd < dc2 * dd) {
                 lineTo(control1);

@@ -243,9 +243,13 @@ static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, vector
 /*
     {
         CGMutablePathRef path = CGPathCreateMutable();
-        CGPathMoveToPoint(path, NULL, 100, 100);
-        CGPathAddCurveToPoint(path, NULL, 200, 200, 300, 200, 400, 100);
-        CGPathAddLineToPoint(path, NULL, 250, 0);
+        CGPathMoveToPoint(path, NULL, 100, 200);
+        CGPathAddCurveToPoint(path, NULL, 200, 300, 300, 300, 400, 200);
+        CGPathAddCurveToPoint(path, NULL, 500, 100, 600, 100, 700, 200);
+        CGPathAddCurveToPoint(path, NULL, 800, 100, 900, 300, 1000, 200);
+        CGPathAddCurveToPoint(path, NULL, 1100, 150, 1200, 100, 1300, 200);
+        CGPathAddLineToPoint(path, NULL, 1300, 0);
+        CGPathAddLineToPoint(path, NULL, 100, 0);
         CGPathCloseSubpath(path);
         triangulatorAppendPath(triangulator, path, CGPointMake(100, 100));
         CFRelease(path);
