@@ -9,7 +9,8 @@
 #ifndef LoopBlinn_Triangulator_h
 #define LoopBlinn_Triangulator_h
 
-#include "CoreGraphics/CoreGraphics.h"
+#include <CoreGraphics/CoreGraphics.h>
+#include <simd/simd.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,8 +26,10 @@ void triangulatorAppendPath(Triangulator*, CGPathRef, CGPoint origin);
 
 void triangulatorTriangulate(Triangulator*);
 
-typedef void(*TriangleIterator)(void*, CGPoint, CGPoint, CGPoint, CGPoint, CGPoint, CGPoint, bool);
+typedef void(*TriangleIterator)(void*, CGPoint, CGPoint, CGPoint, CGPoint, vector_double3, vector_double3, vector_double3, vector_double3, bool);
 void triangulatorApply(Triangulator*, TriangleIterator, void*);
+
+void triangulatorCubic(Triangulator* triangulator, CGPoint a, CGPoint b, CGPoint c, CGPoint d); // FIXME: Remove this
 
 #ifdef __cplusplus
 }

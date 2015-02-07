@@ -1,10 +1,10 @@
 #version 410
 
 in vec2 position;
-in vec2 coordinate;
+in vec3 coordinate;
 in float orientation;
 
-out vec2 coordinateV;
+out vec3 coordinateV;
 flat out uint orientationV;
 
 uniform vec2 size;
