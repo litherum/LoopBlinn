@@ -190,9 +190,9 @@ static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, vector
 }
 
 - (NSArray *)triangulate {
-    CTFontRef font = CTFontCreateWithName((__bridge CFStringRef)@"Arial", 300, NULL);
+    CTFontRef font = CTFontCreateWithName((__bridge CFStringRef)@"Arial", 200, NULL);
     CFDictionaryRef attributes = CFDictionaryCreate(kCFAllocatorDefault, (const void**)&kCTFontAttributeName, (const void**)&font, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-    CFAttributedStringRef attributedString = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("efgh"), attributes);
+    CFAttributedStringRef attributedString = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("abc def ghi jkl mno pqrs tuv wxyz BC DEF GHI JKL MNO PQRS TUV WXYZ"), attributes);
     CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(attributedString);
     CFRelease(attributedString);
     CFRelease(attributes);
@@ -226,6 +226,8 @@ static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, vector
                 CGGlyph glyph = glyphs[glyphIndex];
                 CGPoint position = positions[glyphIndex];
                 CGPathRef path = CTFontCreatePathForGlyph(usedFont, glyph, NULL);
+                if (path == NULL)
+                    continue;
                 triangulatorAppendPath(triangulator, path, CGPointMake(origin.x + position.x, origin.y + position.y));
                 CFRelease(path);
             }

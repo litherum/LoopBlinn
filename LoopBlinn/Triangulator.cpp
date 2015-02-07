@@ -90,6 +90,14 @@ static inline std::pair<std::array<std::array<CGFloat, 3>, 4>, bool> lineOrPoint
     }}, false);
 }
 
+CGFloat roundToZero(CGFloat val)
+{
+    static const CGFloat epsilon(5.0e-4f);
+    if (val < epsilon && val > -epsilon)
+        return 0;
+    return val;
+}
+
 static inline std::array<std::array<CGFloat, 3>, 4> cubic(CGPoint b0i, CGPoint b1i, CGPoint b2i, CGPoint b3i) {
     CGAL::Vector_3<K> b0(b0i.x, b0i.y, 1);
     CGAL::Vector_3<K> b1(b1i.x, b1i.y, 1);
@@ -109,6 +117,11 @@ static inline std::array<std::array<CGFloat, 3>, 4> cubic(CGPoint b0i, CGPoint b
 
     std::pair<std::array<std::array<CGFloat, 3>, 4>, bool> result;
     CGFloat discr(d1 * d1 * (3 * d2 * d2 - 4 * d1 * d3));
+
+    d1 = roundToZero(d1);
+    d2 = roundToZero(d2);
+    d3 = roundToZero(d3);
+
     if (b0 == b1 && b0 == b2 && b0 == b3)
         result = lineOrPoint(d1, d2, d3);
     else if (d1 == 0 && d2 == 0 && d3 == 0)
