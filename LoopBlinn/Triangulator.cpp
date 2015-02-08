@@ -170,8 +170,17 @@ static inline std::array<std::array<CGPoint, 4>, 2> subdivideCubic(CGPoint a, CG
 }
 
 // Returns (a is on right of b)
+// FIXME: Use CGAL::Triangulation_2::orientation()
 static bool orientTurn(CGAL::Vector_2<K> a, CGAL::Vector_2<K> b) {
     return CGAL::cross_product(CGAL::Vector_3<K>(a.x(), a.y(), 0), CGAL::Vector_3<K>(b.x(), b.y(), 0)).z() > 0;
+}
+
+static bool onWay(CGAL::Vector_2<K> of, CGAL::Vector_2<K> onto) {
+    auto ontoUnit(onto / std::sqrt(onto.squared_length()));
+    auto proj((of * ontoUnit) * ontoUnit);
+    auto error(std::sqrt((of - proj).squared_length()));
+    auto scalar((of * onto) / (onto * onto));
+    return scalar > 0 && scalar <= 1 && error < 0.005;
 }
 
 struct Triangulator {
@@ -248,35 +257,43 @@ struct Triangulator {
     }
 
     void mark() {
-        for(CDT::All_faces_iterator i = cdt.all_faces_begin(); i != cdt.all_faces_end(); ++i){
+        for (CDT::All_faces_iterator i(cdt.all_faces_begin()); i != cdt.all_faces_end(); ++i){
             i->info().marked = false;
         }
 
         for (auto& subpath : subpaths) {
             if (subpath.size() < 3)
                 continue;
+
             for (size_t i = 0; i < subpath.size() - 1; ++i) {
                 CDT::Vertex_handle vertex1 = subpath[i];
                 CDT::Vertex_handle vertex2 = subpath[i + 1];
-                CDT::Face_handle seed = lookupFace(vertex1, vertex2);
-                if (seed->info().marked)
-                    continue;
+                auto partial = vertex1;
+                do {
+                    auto lookup(lookupFace(partial, vertex2));
+                    partial = lookup.second;
+                    CDT::Face_handle seed(lookup.first);
+                    if (seed == CDT::Face_handle() && partial == CDT::Vertex_handle())
+                        break;
+                    if (seed->info().marked)
+                        break;
 
-                std::queue<CDT::Face_handle> queue;
-                queue.push(seed);
-                while (queue.size()) {
-                    CDT::Face_handle face = queue.front();
-                    queue.pop();
-                    face->info().marked = true;
-                    for (int i = 0; i < 3; ++i) {
-                        CDT::Edge e(face, i);
-                        if (cdt.is_constrained(e))
-                            continue;
-                        CDT::Face_handle neighbor = face->neighbor(i);
-                        if (!neighbor->info().marked)
-                            queue.push(neighbor);
+                    std::queue<CDT::Face_handle> queue;
+                    queue.push(seed);
+                    while (queue.size()) {
+                        CDT::Face_handle face = queue.front();
+                        queue.pop();
+                        face->info().marked = true;
+                        for (int i = 0; i < 3; ++i) {
+                            CDT::Edge e(face, i);
+                            if (cdt.is_constrained(e))
+                                continue;
+                            CDT::Face_handle neighbor = face->neighbor(i);
+                            if (!neighbor->info().marked)
+                                queue.push(neighbor);
+                        }
                     }
-                }
+                } while (partial != vertex2);
             }
         }
     }
@@ -315,17 +332,18 @@ private:
         subpaths[subpaths.size() - 1].push_back(nextPosition);
     }
 
-    CDT::Face_handle lookupFace(CDT::Vertex_handle vertex1, CDT::Vertex_handle vertex2) {
+    std::pair<CDT::Face_handle, CDT::Vertex_handle> lookupFace(CDT::Vertex_handle vertex1, CDT::Vertex_handle vertex2) {
         CDT::Face_circulator initial = cdt.incident_faces(vertex1);
         CDT::Face_circulator i = initial;
         do {
             for (int j = 0; j < 3; ++j) {
-                if (i->vertex(j) == vertex1 && i->vertex(CDT::cw(j)) == vertex2)
-                    return i;
+                CDT::Vertex_handle candidate(i->vertex(CDT::cw(j)));
+                if (i->vertex(j) == vertex1 && onWay(candidate->point() - vertex1->point(), vertex2->point() - vertex1->point()))
+                    return std::make_pair(i, candidate);
             }
             ++i;
         } while (i != initial);
-        assert(false);
+        return std::make_pair(CDT::Face_handle(), CDT::Vertex_handle()); // This is bad, but probably not ::that:: bad
     }
 
     CDT cdt;

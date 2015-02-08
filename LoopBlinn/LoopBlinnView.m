@@ -190,9 +190,9 @@ static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, vector
 }
 
 - (NSArray *)triangulate {
-    CTFontRef font = CTFontCreateWithName((__bridge CFStringRef)@"Arial", 200, NULL);
+    CTFontRef font = CTFontCreateWithName(CFSTR("Arial"), 200, NULL);
     CFDictionaryRef attributes = CFDictionaryCreate(kCFAllocatorDefault, (const void**)&kCTFontAttributeName, (const void**)&font, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-    CFAttributedStringRef attributedString = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("abc def ghi jkl mno pqrs tuv wxyz BC DEF GHI JKL MNO PQRS TUV WXYZ"), attributes);
+    CFAttributedStringRef attributedString = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("abc def ghi jkl mno pqrs tuv wxyz ABC DEF GHI JKL MNO PQRS TUV WXYZ"), attributes);
     CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(attributedString);
     CFRelease(attributedString);
     CFRelease(attributes);
@@ -237,14 +237,15 @@ static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, vector
 /*
     {
         CGMutablePathRef path = CGPathCreateMutable();
-        CGPathMoveToPoint(path, NULL, 100, 200);
-        CGPathAddCurveToPoint(path, NULL, 200, 300, 300, 300, 400, 200);
-        CGPathAddCurveToPoint(path, NULL, 500, 100, 600, 100, 700, 200);
-        CGPathAddCurveToPoint(path, NULL, 800, 100, 900, 300, 1000, 200);
-        CGPathAddCurveToPoint(path, NULL, 1100, 150, 1200, 100, 1300, 200);
-        CGPathAddLineToPoint(path, NULL, 1300, 0);
-        CGPathAddLineToPoint(path, NULL, 100, 0);
-        CGPathCloseSubpath(path);
+CGPathMoveToPoint(path, NULL, -0.292969, 0.000000);
+CGPathAddLineToPoint(path, NULL, 54.687500, 143.164062);
+CGPathAddLineToPoint(path, NULL, 75.097656, 143.164062);
+CGPathAddLineToPoint(path, NULL, 133.691406, 0.000000);
+CGPathAddLineToPoint(path, NULL, 112.109375, 0.000000);
+CGPathAddLineToPoint(path, NULL, 95.410156, 43.359375);
+CGPathAddLineToPoint(path, NULL, 35.546875, 43.359375);
+CGPathAddLineToPoint(path, NULL, 19.824219, 0.000000);
+CGPathCloseSubpath(path);
         triangulatorAppendPath(triangulator, path, CGPointMake(100, 100));
         CFRelease(path);
     }
