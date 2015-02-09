@@ -40,12 +40,12 @@ static inline std::pair<std::array<std::array<CGFloat, 3>, 4>, bool> serpentine(
     CGFloat lt(6 * d1);
     CGFloat ms(3 * d2 + std::sqrt(9 * d2 * d2 - 12 * d1 * d3));
     CGFloat mt(6 * d1);
-    return std::make_pair(std::array<std::array<CGFloat, 3>, 4>{{
-        std::array<CGFloat, 3>{{ls * ms, ls * ls * ls, ms * ms * ms}},
-        std::array<CGFloat, 3>{{(3 * ls * ms - ls * mt - lt * ms) / 3, ls * ls * (ls - lt), ms * ms * (ms - mt)}},
-        std::array<CGFloat, 3>{{(lt * (mt - 2 * ms) + ls * (3 * ms - 2 * mt)) / 3, (lt - ls) * (lt - ls) * ls, (mt - ms) * (mt - ms) * ms}},
-        std::array<CGFloat, 3>{{(lt - ls) * (mt - ms), -(lt - ls) * (lt - ls) * (lt - ls), -(mt - ms) * (mt - ms) * (mt - ms)}}
-    }}, d1 < 0);
+    return std::make_pair(std::array<std::array<CGFloat, 3>, 4>{
+        std::array<CGFloat, 3>{ls * ms, ls * ls * ls, ms * ms * ms},
+        std::array<CGFloat, 3>{(3 * ls * ms - ls * mt - lt * ms) / 3, ls * ls * (ls - lt), ms * ms * (ms - mt)},
+        std::array<CGFloat, 3>{(lt * (mt - 2 * ms) + ls * (3 * ms - 2 * mt)) / 3, (lt - ls) * (lt - ls) * ls, (mt - ms) * (mt - ms) * ms},
+        std::array<CGFloat, 3>{(lt - ls) * (mt - ms), -(lt - ls) * (lt - ls) * (lt - ls), -(mt - ms) * (mt - ms) * (mt - ms)}
+    }, d1 < 0);
 }
 
 static inline std::pair<std::array<std::array<CGFloat, 3>, 4>, bool> loop(CGFloat d1, CGFloat d2, CGFloat d3) {
@@ -53,41 +53,41 @@ static inline std::pair<std::array<std::array<CGFloat, 3>, 4>, bool> loop(CGFloa
     CGFloat lt(2 * d1);
     CGFloat ms(d2 + std::sqrt(4 * d1 * d3 - 3 * d2 * d2));
     CGFloat mt(2 * d1);
-    return std::make_pair(std::array<std::array<CGFloat, 3>, 4>{{
-        std::array<CGFloat, 3>{{ls * ms, ls * ls * ms, ls * ms * ms}},
-        std::array<CGFloat, 3>{{(-ls * mt - lt * ms + 3 * ls * ms) / 3, ls * (ls * (mt - 3 * ms) + 2 * lt * ms) / -3, ms * (ls * (2 * mt - 3 * ms) + lt * ms) / -3}},
-        std::array<CGFloat, 3>{{(lt * (mt - 2 * ms) + ls * (3 * ms - 2 * mt)) / 3, (lt - ls) * (ls * (2 * mt - 3 * ms) + lt * ms) / 3, (mt - ms) * (ls * (mt - 3 * ms) + 2 * lt * ms) / 3}},
-        std::array<CGFloat, 3>{{(lt - ls) * (mt - ms), -(lt - ls) * (lt - ls) * (mt - ms), -(lt - ls) * (mt - ms) * (mt - ms)}}
-    }}, false); // FIXME: might need to subdivide and update orientation
+    return std::make_pair(std::array<std::array<CGFloat, 3>, 4>{
+        std::array<CGFloat, 3>{ls * ms, ls * ls * ms, ls * ms * ms},
+        std::array<CGFloat, 3>{(-ls * mt - lt * ms + 3 * ls * ms) / 3, ls * (ls * (mt - 3 * ms) + 2 * lt * ms) / -3, ms * (ls * (2 * mt - 3 * ms) + lt * ms) / -3},
+        std::array<CGFloat, 3>{(lt * (mt - 2 * ms) + ls * (3 * ms - 2 * mt)) / 3, (lt - ls) * (ls * (2 * mt - 3 * ms) + lt * ms) / 3, (mt - ms) * (ls * (mt - 3 * ms) + 2 * lt * ms) / 3},
+        std::array<CGFloat, 3>{(lt - ls) * (mt - ms), -(lt - ls) * (lt - ls) * (mt - ms), -(lt - ls) * (mt - ms) * (mt - ms)}
+    }, false); // FIXME: might need to subdivide and update orientation
 }
 
 static inline std::pair<std::array<std::array<CGFloat, 3>, 4>, bool> cusp(CGFloat d1, CGFloat d2, CGFloat d3) {
     CGFloat ls(d3);
     CGFloat lt(3 * d2);
-    return std::make_pair(std::array<std::array<CGFloat, 3>, 4>{{
-        std::array<CGFloat, 3>{{ls, ls * ls * ls, 1}},
-        std::array<CGFloat, 3>{{ls - lt / 3, ls * ls * (ls - lt), 1}},
-        std::array<CGFloat, 3>{{ls - 2 * lt / 3, (ls - lt) * (ls - lt) * ls, 1}},
-        std::array<CGFloat, 3>{{ls - lt, (ls - lt) * (ls - lt) * (ls - lt), 1}}
-    }}, false);
+    return std::make_pair(std::array<std::array<CGFloat, 3>, 4>{
+        std::array<CGFloat, 3>{ls, ls * ls * ls, 1},
+        std::array<CGFloat, 3>{ls - lt / 3, ls * ls * (ls - lt), 1},
+        std::array<CGFloat, 3>{ls - 2 * lt / 3, (ls - lt) * (ls - lt) * ls, 1},
+        std::array<CGFloat, 3>{ls - lt, (ls - lt) * (ls - lt) * (ls - lt), 1}
+    }, false);
 }
 
 static inline std::pair<std::array<std::array<CGFloat, 3>, 4>, bool> quadratic(CGFloat d1, CGFloat d2, CGFloat d3) {
-    return std::make_pair(std::array<std::array<CGFloat, 3>, 4>{{
-        std::array<CGFloat, 3>{{0, 0, 0}},
-        std::array<CGFloat, 3>{{CGFloat(1) / 3, 0, CGFloat(1) / 3}},
-        std::array<CGFloat, 3>{{CGFloat(2) / 3, CGFloat(1) / 3, CGFloat(2) / 3}},
-        std::array<CGFloat, 3>{{1, 1, 1}}
-    }}, d3 < 0);
+    return std::make_pair(std::array<std::array<CGFloat, 3>, 4>{
+        std::array<CGFloat, 3>{0, 0, 0},
+        std::array<CGFloat, 3>{CGFloat(1) / 3, 0, CGFloat(1) / 3},
+        std::array<CGFloat, 3>{CGFloat(2) / 3, CGFloat(1) / 3, CGFloat(2) / 3},
+        std::array<CGFloat, 3>{1, 1, 1}
+    }, d3 < 0);
 }
 
 static inline std::pair<std::array<std::array<CGFloat, 3>, 4>, bool> lineOrPoint(CGFloat d1, CGFloat d2, CGFloat d3) {
-    return std::make_pair(std::array<std::array<CGFloat, 3>, 4>{{
-        std::array<CGFloat, 3>{{0, 0, 0}},
-        std::array<CGFloat, 3>{{0, 0, 0}},
-        std::array<CGFloat, 3>{{0, 0, 0}},
-        std::array<CGFloat, 3>{{0, 0, 0}}
-    }}, false);
+    return std::make_pair(std::array<std::array<CGFloat, 3>, 4>{
+        std::array<CGFloat, 3>{0, 0, 0},
+        std::array<CGFloat, 3>{0, 0, 0},
+        std::array<CGFloat, 3>{0, 0, 0},
+        std::array<CGFloat, 3>{0, 0, 0}
+    }, false);
 }
 
 CGFloat roundToZero(CGFloat val)
@@ -165,8 +165,8 @@ static inline std::array<std::array<CGPoint, 4>, 2> subdivideCubic(CGPoint a, CG
     CGPoint abc(lerp(ab, bc, scalar));
     CGPoint bcd(lerp(bc, cd, scalar));
     CGPoint abcd(lerp(abc, bcd, scalar));
-    return std::array<std::array<CGPoint, 4>, 2>{{std::array<CGPoint, 4>{{a, ab, abc, abcd}},
-                                                  std::array<CGPoint, 4>{{abcd, bcd, cd, d}}}};
+    return std::array<std::array<CGPoint, 4>, 2>{std::array<CGPoint, 4>{a, ab, abc, abcd},
+                                                 std::array<CGPoint, 4>{abcd, bcd, cd, d}};
 }
 
 static bool onWay(CGAL::Vector_2<K> of, CGAL::Vector_2<K> onto) {
@@ -181,6 +181,7 @@ struct Triangulator {
     void moveTo(CGPoint destination) {
         currentPosition = cdt.insert(CDT::Point(destination.x, destination.y));
         subpathStart = currentPosition;
+
         std::vector<CDT::Vertex_handle> subpath;
         subpath.push_back(currentPosition);
         subpaths.emplace_back(std::move(subpath));
@@ -198,52 +199,50 @@ struct Triangulator {
     }
 
     void cubicTo(CGPoint destination, CGPoint control1, CGPoint control2) {
-        std::array<CGPoint, 4> vertices{{CGPointMake(currentPosition->point().x(), currentPosition->point().y()), control1, control2, destination}};
+        std::array<CGPoint, 4> vertices{CGPointMake(currentPosition->point().x(), currentPosition->point().y()), control1, control2, destination};
         CGAL::Vector_2<K> dc1(control1.x - currentPosition->point().x(), control1.y - currentPosition->point().y());
         CGAL::Vector_2<K> dc2(control2.x - currentPosition->point().x(), control2.y - currentPosition->point().y());
         CGAL::Vector_2<K> dd(destination.x - currentPosition->point().x(), destination.y - currentPosition->point().y());
-        bool orientation1 = CGAL::orientation(dc1, dd) == CGAL::RIGHT_TURN;
-        bool orientation2 = CGAL::orientation(dc2, dd) == CGAL::RIGHT_TURN;
+        bool orientation1 = CGAL::orientation(dc1, dd) == CGAL::LEFT_TURN; // dc1 is on the right side of dd
+        bool orientation2 = CGAL::orientation(dc2, dd) == CGAL::LEFT_TURN; // dc2 is on the right side of dd
         auto coordinates(cubic(vertices[0], vertices[1], vertices[2], vertices[3]));
 
+        // Enforce clockwise winding for the curve triangles
         std::array<size_t, 4> order;
         if (orientation1 != orientation2) {
-            if (orientation1)
+            if (orientation1) // First control point is on the right side of destination
                 order = {1, 0, 3, 2};
             else
                 order = {2, 0, 3, 1};
-        } else if (dc1 * dd < dc2 * dd) {
-            if (orientation1)
+        } else if (dc1 * dd < dc2 * dd) { // Same side, dc1 is closer to currentPosition than dc2
+            if (orientation1) // Control points are on right side of destination
                 order = {0, 3, 1, 2};
             else
                 order = {1, 2, 0, 3};
-        } else {
+        } else { // Same side, dc2 is closer to currentPosition than dc1
             if (orientation1)
                 order = {0, 3, 2, 1};
             else
                 order = {2, 1, 0, 3};
         }
-        std::array<CGPoint, 4> rearrangedVertices{{vertices[order[0]], vertices[order[1]], vertices[order[2]], vertices[order[3]]}};
-        std::array<std::array<CGFloat, 3>, 4> rearrangedCoordinates{{coordinates[order[0]], coordinates[order[1]], coordinates[order[2]], coordinates[order[3]]}};
-
+        std::array<CGPoint, 4> rearrangedVertices{vertices[order[0]], vertices[order[1]], vertices[order[2]], vertices[order[3]]};
+        std::array<std::array<CGFloat, 3>, 4> rearrangedCoordinates{coordinates[order[0]], coordinates[order[1]], coordinates[order[2]], coordinates[order[3]]};
         cubicCurves.emplace_back(std::move(rearrangedVertices), std::move(rearrangedCoordinates));
+
+        // "Inside" is on the right, so if the control points are on the right, make lines to the control points instead of directly to the destination
         if (orientation1 && orientation2) {
-            if (dc1 * dd < dc2 * dd) {
+            if (dc1 * dd < dc2 * dd) { // dc1 is closer to currentPosition than dc2
                 lineTo(control1);
                 lineTo(control2);
             } else {
                 lineTo(control2);
                 lineTo(control1);
             }
-            lineTo(destination);
-        } else if (orientation1) {
+        } else if (orientation1)
             lineTo(control1);
-            lineTo(destination);
-        } else if (orientation2) {
+        else if (orientation2)
             lineTo(control2);
-            lineTo(destination);
-        } else
-            lineTo(destination);
+        lineTo(destination);
     }
 
     void close() {
@@ -270,7 +269,7 @@ struct Triangulator {
                     if (seed == CDT::Face_handle() && partial == CDT::Vertex_handle())
                         break;
                     if (seed->info().marked)
-                        break;
+                        continue;
 
                     std::queue<CDT::Face_handle> queue;
                     queue.push(seed);
@@ -298,8 +297,8 @@ struct Triangulator {
                 continue;
             if (i->info().marked)
                 iterator(context, CGPointMake(i->vertex(0)->point().x(), i->vertex(0)->point().y()),
-                                  CGPointMake(i->vertex(1)->point().x(), i->vertex(1)->point().y()),
-                                  CGPointMake(i->vertex(2)->point().x(), i->vertex(2)->point().y()),
+                                  CGPointMake(i->vertex(CDT::cw(0))->point().x(), i->vertex(CDT::cw(0))->point().y()),
+                                  CGPointMake(i->vertex(CDT::ccw(0))->point().x(), i->vertex(CDT::ccw(0))->point().y()),
                                   {0, 1, 1}, {0, 1, 1}, {0, 1, 1});
         }
 
@@ -332,7 +331,7 @@ private:
         do {
             for (int j = 0; j < 3; ++j) {
                 CDT::Vertex_handle candidate(i->vertex(CDT::cw(j)));
-                if (i->vertex(j) == vertex1 && onWay(candidate->point() - vertex1->point(), vertex2->point() - vertex1->point()))
+                if (i->vertex(j) == vertex1 && cdt.is_constrained(CDT::Edge(i, CDT::ccw(j))) && onWay(candidate->point() - vertex1->point(), vertex2->point() - vertex1->point()))
                     return std::make_pair(i, candidate);
             }
             ++i;
