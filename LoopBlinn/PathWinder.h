@@ -12,5 +12,6 @@
 #include <CoreGraphics/CoreGraphics.h>
 
 CGPathRef createCorrectlyWoundPath(CGPathRef path);
+CGPathRef createNonIntersectingPath(CGPathRef path);
 
 #endif /* defined(__LoopBlinn__PathWinder__) */

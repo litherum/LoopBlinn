@@ -152,23 +152,6 @@ struct CubicCurve {
     std::array<std::array<CGFloat, 3>, 4> coordinates;
 };
 
-static inline CGPoint lerp(CGPoint a, CGPoint b, CGFloat scalar) {
-    return CGPointMake(a.x * (1 - scalar) + b.x * scalar, a.y * (1 - scalar) + b.y * scalar);
-}
-
-// De Casteljau's algorithm
-static inline std::array<std::array<CGPoint, 4>, 2> subdivideCubic(CGPoint a, CGPoint b, CGPoint c, CGPoint d) {
-    const CGFloat scalar(0.5);
-    CGPoint ab(lerp(a, b, scalar));
-    CGPoint bc(lerp(b, c, scalar));
-    CGPoint cd(lerp(c, d, scalar));
-    CGPoint abc(lerp(ab, bc, scalar));
-    CGPoint bcd(lerp(bc, cd, scalar));
-    CGPoint abcd(lerp(abc, bcd, scalar));
-    return std::array<std::array<CGPoint, 4>, 2>{std::array<CGPoint, 4>{a, ab, abc, abcd},
-                                                 std::array<CGPoint, 4>{abcd, bcd, cd, d}};
-}
-
 static bool onWay(CGAL::Vector_2<K> of, CGAL::Vector_2<K> onto) {
     auto ontoUnit(onto / std::sqrt(onto.squared_length()));
     auto proj((of * ontoUnit) * ontoUnit);
@@ -402,9 +385,9 @@ static void pathIterator(void *info, const CGPathElement *element) {
 void triangulatorAppendPath(Triangulator* triangulator, CGPathRef path, CGPoint origin) {
     triangulator->moveTo(origin);
     struct PathIteratorContext context(*triangulator, origin);
-    CGPathRef woundPath = createCorrectlyWoundPath(path);
-    CGPathApply(woundPath, &context, &pathIterator);
-    CFRelease(woundPath);
+    CGPathRef newPath(createNonIntersectingPath(path));
+    CGPathApply(newPath, &context, &pathIterator);
+    CFRelease(newPath);
 }
 
 void triangulatorTriangulate(Triangulator* triangulator) {
