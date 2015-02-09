@@ -190,9 +190,9 @@ static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, vector
 }
 
 - (NSArray *)triangulate {
-    CTFontRef font = CTFontCreateWithName(CFSTR("Arial"), 200, NULL);
+    CTFontRef font = CTFontCreateWithName(CFSTR("American Typewriter"), 100, NULL);
     CFDictionaryRef attributes = CFDictionaryCreate(kCFAllocatorDefault, (const void**)&kCTFontAttributeName, (const void**)&font, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-    CFAttributedStringRef attributedString = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("abc def ghi jkl mno pqrs tuv wxyz ABC DEF GHI JKL MNO PQRS TUV WXYZ"), attributes);
+    CFAttributedStringRef attributedString = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("x"), attributes);
     CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(attributedString);
     CFRelease(attributedString);
     CFRelease(attributes);
