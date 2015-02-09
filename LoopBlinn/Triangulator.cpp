@@ -168,12 +168,6 @@ static inline std::array<std::array<CGPoint, 4>, 2> subdivideCubic(CGPoint a, CG
                                                   std::array<CGPoint, 4>{{abcd, bcd, cd, d}}}};
 }
 
-// Returns (a is on right of b)
-// FIXME: Use CGAL::Triangulation_2::orientation()
-static bool orientTurn(CGAL::Vector_2<K> a, CGAL::Vector_2<K> b) {
-    return CGAL::cross_product(CGAL::Vector_3<K>(a.x(), a.y(), 0), CGAL::Vector_3<K>(b.x(), b.y(), 0)).z() > 0;
-}
-
 static bool onWay(CGAL::Vector_2<K> of, CGAL::Vector_2<K> onto) {
     auto ontoUnit(onto / std::sqrt(onto.squared_length()));
     auto proj((of * ontoUnit) * ontoUnit);
@@ -207,8 +201,8 @@ struct Triangulator {
         CGAL::Vector_2<K> dc1(control1.x - currentPosition->point().x(), control1.y - currentPosition->point().y());
         CGAL::Vector_2<K> dc2(control2.x - currentPosition->point().x(), control2.y - currentPosition->point().y());
         CGAL::Vector_2<K> dd(destination.x - currentPosition->point().x(), destination.y - currentPosition->point().y());
-        bool orientation1 = orientTurn(dc1, dd);
-        bool orientation2 = orientTurn(dc2, dd);
+        bool orientation1 = CGAL::orientation(dc1, dd) == CGAL::RIGHT_TURN;
+        bool orientation2 = CGAL::orientation(dc2, dd) == CGAL::RIGHT_TURN;
         auto coordinates(cubic(vertices[0], vertices[1], vertices[2], vertices[3]));
 
         std::array<size_t, 4> order;
