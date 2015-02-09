@@ -10,6 +10,7 @@
 		1C4ACA411A83D757007C9347 /* Triangulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C4ACA401A83D757007C9347 /* Triangulator.cpp */; };
 		1C4ACA431A83D8FF007C9347 /* libCGAL.10.0.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C4ACA421A83D8FF007C9347 /* libCGAL.10.0.4.dylib */; };
 		1C4ACA451A83DBD4007C9347 /* libgmp.10.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C4ACA441A83DBD4007C9347 /* libgmp.10.dylib */; };
+		1CCAA7FD1A88376A00135A40 /* PathWinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CCAA7FB1A88376A00135A40 /* PathWinder.cpp */; };
 		C28A55B11A831A960034B66E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C28A55B01A831A960034B66E /* AppDelegate.m */; };
 		C28A55B31A831A960034B66E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C28A55B21A831A960034B66E /* main.m */; };
 		C28A55B51A831A960034B66E /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C28A55B41A831A960034B66E /* Images.xcassets */; };
@@ -36,6 +37,8 @@
 		1C4ACA421A83D8FF007C9347 /* libCGAL.10.0.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL.10.0.4.dylib; path = ../../../../../../opt/local/lib/libCGAL.10.0.4.dylib; sourceTree = "<group>"; };
 		1C4ACA441A83DBD4007C9347 /* libgmp.10.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgmp.10.dylib; path = ../../../../../../opt/local/lib/libgmp.10.dylib; sourceTree = "<group>"; };
 		1C4ACA471A83FB28007C9347 /* CFPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CFPtr.h; sourceTree = "<group>"; };
+		1CCAA7FB1A88376A00135A40 /* PathWinder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PathWinder.cpp; sourceTree = "<group>"; };
+		1CCAA7FC1A88376A00135A40 /* PathWinder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathWinder.h; sourceTree = "<group>"; };
 		C28A55AA1A831A960034B66E /* LoopBlinn.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LoopBlinn.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C28A55AE1A831A960034B66E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C28A55AF1A831A960034B66E /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -107,6 +110,8 @@
 				1C4ACA3F1A83D745007C9347 /* Triangulator.h */,
 				1C4ACA401A83D757007C9347 /* Triangulator.cpp */,
 				1C4ACA471A83FB28007C9347 /* CFPtr.h */,
+				1CCAA7FB1A88376A00135A40 /* PathWinder.cpp */,
+				1CCAA7FC1A88376A00135A40 /* PathWinder.h */,
 			);
 			path = LoopBlinn;
 			sourceTree = "<group>";
@@ -241,6 +246,7 @@
 				C28A55B31A831A960034B66E /* main.m in Sources */,
 				1C4ACA411A83D757007C9347 /* Triangulator.cpp in Sources */,
 				C28A55B11A831A960034B66E /* AppDelegate.m in Sources */,
+				1CCAA7FD1A88376A00135A40 /* PathWinder.cpp in Sources */,
 				C28A55CE1A831B120034B66E /* LoopBlinnView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
