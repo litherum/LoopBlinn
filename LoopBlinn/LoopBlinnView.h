@@ -15,6 +15,7 @@
 
 - (void)awakeFromNib;
 - (void)update;
+- (void)reshape;
 - (void)prepareOpenGL;
 - (void)drawRect:(NSRect)dirtyRect;
 - (void)dealloc;

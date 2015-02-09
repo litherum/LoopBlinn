@@ -41,6 +41,8 @@
     GLuint _program;
     GLuint _vbo;
     GLuint _vertexArray;
+    BOOL _prepared;
+    BOOL _initialReshape;
 }
 
 - (void)awakeFromNib {
@@ -64,11 +66,15 @@
     _program = 0;
     _vbo = 0;
     _vertexArray = 0;
+    _prepared = NO;
+    _initialReshape = NO;
 }
 
 - (void)update {
     [super update];
-    glViewport(self.bounds.origin.x, self.bounds.origin.y, self.bounds.size.width, self.bounds.size.height);
+
+    NSRect viewRectPixels = [self convertRectToBacking:[self bounds]];
+    glViewport(viewRectPixels.origin.x, viewRectPixels.origin.y, viewRectPixels.size.width, viewRectPixels.size.height);
     glUniform2f(_sizeUniformLocation, self.bounds.size.width, self.bounds.size.height);
 
     NSArray *context = [self triangulate];
@@ -95,6 +101,16 @@
         p[i * 15 + 14] = item.coordinate3.z;
     }
     glBufferData(GL_ARRAY_BUFFER, data.length, data.bytes, GL_STATIC_DRAW);
+    [self setNeedsDisplay:YES];
+}
+
+- (void)reshape {
+    [super reshape];
+
+    if (_prepared && !_initialReshape) {
+        [self update];
+        _initialReshape = YES;
+    }
 }
 
 - (void)prepareOpenGL {
@@ -182,6 +198,8 @@
 
     GLenum glError = glGetError();
     assert(glError == GL_NO_ERROR);
+
+    _prepared = YES;
 }
 
 static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, vector_double3 c1, vector_double3 c2, vector_double3 c3) {
@@ -190,9 +208,9 @@ static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, vector
 }
 
 - (NSArray *)triangulate {
-    CTFontRef font = CTFontCreateWithName(CFSTR("Hoefler Text"), 300, NULL);
+    CTFontRef font = CTFontCreateWithName(CFSTR(/*"Hoefler Text"*/"Helvetica"), 100, NULL);
     CFDictionaryRef attributes = CFDictionaryCreate(kCFAllocatorDefault, (const void**)&kCTFontAttributeName, (const void**)&font, 1, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
-    CFAttributedStringRef attributedString = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("a"), attributes);
+    CFAttributedStringRef attributedString = CFAttributedStringCreate(kCFAllocatorDefault, CFSTR("abc def ghi jkl mno pqrs tuv wxyz"), attributes);
     CTFramesetterRef framesetter = CTFramesetterCreateWithAttributedString(attributedString);
     CFRelease(attributedString);
     CFRelease(attributes);
@@ -228,7 +246,8 @@ static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, vector
                 CGPathRef path = CTFontCreatePathForGlyph(usedFont, glyph, NULL);
                 if (path == NULL)
                     continue;
-                triangulatorAppendPath(triangulator, path, CGPointMake(origin.x + position.x, origin.y + position.y));
+                CGPoint glyphOrigin = CGPointMake(origin.x + position.x, origin.y + position.y);
+                triangulatorAppendPath(triangulator, path, glyphOrigin);
                 CFRelease(path);
             }
         }
