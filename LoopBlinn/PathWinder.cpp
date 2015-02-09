@@ -144,7 +144,7 @@ public:
             CGAL::Vector_3<K> d(p.x() - common.x(), p.y() - common.y(), 0);
             CGFloat t((d.y() - v1.y() * d.x() / v1.x()) / (-v1.y() * v2.x() / v1.x() + v2.y()));
             CGFloat s((d.x() - v2.x() * t) / v1.x());
-            return t >= 0 && t <= 1 && s >= 0 && t <= 1 && t + s < 1;
+            return t > 0 && t < 1 && s > 0 && t < 1 && t + s < 1;
         }
 
         CGAL::Point_2<K> common;
@@ -168,7 +168,7 @@ public:
         CGAL::Point_2<K> d(destination.x, destination.y);
         CGAL::Vector_2<K> c1(control1.x - source.x, control1.y - source.y);
         CGAL::Vector_2<K> c2(control2.x - source.x, control2.y - source.y);
-        CGAL::Vector_2<K> v(destination.x - source.x, destination.y - source.y);
+        CGAL::Vector_2<K> v(d - s);
         if (CGAL::orientation(c1, v) == CGAL::orientation(c2, v)) {
             if (c1 * v < c2 * v)
                 return Decomposition(Triangle(s, c1, v), Triangle(d, CGAL::Vector_2<K>(control1.x - destination.x, control1.y - destination.y), CGAL::Vector_2<K>(control2.x - destination.x, control2.y - destination.y)));
@@ -306,16 +306,14 @@ static void nonIntersectingPathApplierFunction(void *info, const CGPathElement *
             context.pathList.push_back(std::unique_ptr<PathComponent>(new CubicComponent(QuadraticComponent(context.currentPoint, control, destination).cubicComponent())));
             context.currentPoint = destination;
             break;
-        }
-        case kCGPathElementAddCurveToPoint: {
+        } case kCGPathElementAddCurveToPoint: {
             CGPoint control1 = CGPointMake(element->points[0].x, element->points[0].y);
             CGPoint control2 = CGPointMake(element->points[1].x, element->points[1].y);
             CGPoint destination = CGPointMake(element->points[2].x, element->points[2].y);
             context.pathList.push_back(std::unique_ptr<PathComponent>(new CubicComponent(context.currentPoint, control1, control2, destination)));
             context.currentPoint = destination;
             break;
-        }
-        case kCGPathElementCloseSubpath:
+        } case kCGPathElementCloseSubpath:
             context.pathList.push_back(std::unique_ptr<PathComponent>(new CloseComponent(context.currentPoint, context.subpathStart)));
             context.currentPoint = context.subpathStart;
             break;
@@ -328,6 +326,7 @@ CGPathRef createNonIntersectingPath(CGPathRef path) {
     PathList pathList;
     NonIntersectingContext context(pathList);
     CGPathApply(path, &context, &nonIntersectingPathApplierFunction);
+    /*
     for (auto i(pathList.begin()); i != pathList.end(); ++i) {
         CubicComponent* a(dynamic_cast<CubicComponent*>(i->get()));
         if (a == nullptr)
@@ -335,7 +334,7 @@ CGPathRef createNonIntersectingPath(CGPathRef path) {
         auto j(i);
         for (++j; j != pathList.end();) {
             bool incJ(true);
-            CubicComponent* b(dynamic_cast<CubicComponent*>(i->get()));
+            CubicComponent* b(dynamic_cast<CubicComponent*>(j->get()));
             if (b != nullptr) {
                 if (a->intersect(*b)) {
                     incJ = false;
@@ -362,7 +361,7 @@ CGPathRef createNonIntersectingPath(CGPathRef path) {
                 ++j;
         }
     }
-
+*/
     CGMutablePathRef result = CGPathCreateMutable();
     for (auto& i : pathList)
         i->emit(result);
@@ -454,16 +453,14 @@ static void applierFunction(void *info, const CGPathElement *element) {
             context.append(std::unique_ptr<PathComponent>(new QuadraticComponent(context.source, control, destination)));
             context.source = destination;
             break;
-        }
-        case kCGPathElementAddCurveToPoint: {
+        } case kCGPathElementAddCurveToPoint: {
             CGPoint control1 = CGPointMake(element->points[0].x, element->points[0].y);
             CGPoint control2 = CGPointMake(element->points[1].x, element->points[1].y);
             CGPoint destination = CGPointMake(element->points[2].x, element->points[2].y);
             context.append(std::unique_ptr<PathComponent>(new CubicComponent(context.source, control1, control2, destination)));
             context.source = destination;
             break;
-        }
-        case kCGPathElementCloseSubpath:
+        } case kCGPathElementCloseSubpath:
             context.append(std::unique_ptr<PathComponent>(new LineComponent(context.source, context.subpathSource)));
             context.source = context.subpathSource;
             break;

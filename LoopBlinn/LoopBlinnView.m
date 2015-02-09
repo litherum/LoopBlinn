@@ -247,28 +247,57 @@ static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, vector
                 if (path == NULL)
                     continue;
                 CGPoint glyphOrigin = CGPointMake(origin.x + position.x, origin.y + position.y);
-                triangulatorAppendPath(triangulator, path, glyphOrigin);
+                ///triangulatorAppendPath(triangulator, path, glyphOrigin);
                 CFRelease(path);
             }
         }
     }
     CFRelease(frame);
-/*
+///*
     {
         CGMutablePathRef path = CGPathCreateMutable();
-CGPathMoveToPoint(path, NULL, -0.292969, 0.000000);
-CGPathAddLineToPoint(path, NULL, 54.687500, 143.164062);
-CGPathAddLineToPoint(path, NULL, 75.097656, 143.164062);
-CGPathAddLineToPoint(path, NULL, 133.691406, 0.000000);
-CGPathAddLineToPoint(path, NULL, 112.109375, 0.000000);
-CGPathAddLineToPoint(path, NULL, 95.410156, 43.359375);
-CGPathAddLineToPoint(path, NULL, 35.546875, 43.359375);
-CGPathAddLineToPoint(path, NULL, 19.824219, 0.000000);
+CGPathMoveToPoint(path, NULL, 107.100000, -5.100000);
+CGPathAddQuadCurveToPoint(path, NULL, 98.700000, -5.100000, 92.475000, -0.975000);
+CGPathAddQuadCurveToPoint(path, NULL, 86.250000, 3.150000, 84.000000, 10.200000);
+CGPathAddQuadCurveToPoint(path, NULL, 67.950000, -6.300000, 42.000000, -6.300000);
+CGPathAddQuadCurveToPoint(path, NULL, 28.500000, -6.300000, 19.950000, 2.025000);
+CGPathAddQuadCurveToPoint(path, NULL, 11.400000, 10.350000, 11.400000, 22.800000);
+CGPathAddQuadCurveToPoint(path, NULL, 11.400000, 53.550000, 84.300000, 72.600000);
+CGPathAddLineToPoint(path, NULL, 85.200000, 96.000000);
+CGPathAddLineToPoint(path, NULL, 85.200000, 96.750000);
+CGPathAddQuadCurveToPoint(path, NULL, 85.200000, 107.550000, 79.875000, 113.925000);
+CGPathAddQuadCurveToPoint(path, NULL, 74.550000, 120.300000, 65.700000, 120.300000);
+CGPathAddQuadCurveToPoint(path, NULL, 56.850000, 120.300000, 50.700000, 116.025000);
+CGPathAddQuadCurveToPoint(path, NULL, 44.550000, 111.750000, 44.400000, 105.300000);
+CGPathAddQuadCurveToPoint(path, NULL, 44.250000, 95.700000, 39.375000, 90.300000);
+CGPathAddQuadCurveToPoint(path, NULL, 34.500000, 84.900000, 26.400000, 84.900000);
+CGPathAddQuadCurveToPoint(path, NULL, 21.600000, 84.900000, 18.600000, 87.750000);
+CGPathAddQuadCurveToPoint(path, NULL, 15.600000, 90.600000, 15.600000, 95.400000);
+CGPathAddQuadCurveToPoint(path, NULL, 15.600000, 106.950000, 36.600000, 119.625000);
+CGPathAddQuadCurveToPoint(path, NULL, 57.600000, 132.300000, 75.600000, 132.300000);
+CGPathAddQuadCurveToPoint(path, NULL, 91.800000, 132.300000, 101.850000, 122.700000);
+CGPathAddQuadCurveToPoint(path, NULL, 111.900000, 113.100000, 111.900000, 96.900000);
+CGPathAddLineToPoint(path, NULL, 111.900000, 95.100000);
+CGPathAddLineToPoint(path, NULL, 109.800000, 27.300000);
+CGPathAddLineToPoint(path, NULL, 109.800000, 26.250000);
+CGPathAddQuadCurveToPoint(path, NULL, 109.800000, 10.500000, 120.000000, 10.500000);
+CGPathAddQuadCurveToPoint(path, NULL, 124.950000, 10.500000, 131.550000, 16.500000);
+CGPathAddLineToPoint(path, NULL, 132.600000, 16.800000);
+CGPathAddQuadCurveToPoint(path, NULL, 133.800000, 16.800000, 134.850000, 15.225000);
+CGPathAddQuadCurveToPoint(path, NULL, 135.900000, 13.650000, 135.900000, 11.850000);
+CGPathAddQuadCurveToPoint(path, NULL, 135.900000, 7.500000, 126.825000, 1.200000);
+CGPathAddQuadCurveToPoint(path, NULL, 117.750000, -5.100000, 107.100000, -5.100000);
+CGPathCloseSubpath(path);
+CGPathMoveToPoint(path, NULL, 84.000000, 62.400000);
+CGPathAddQuadCurveToPoint(path, NULL, 40.200000, 52.500000, 40.200000, 29.700000);
+CGPathAddQuadCurveToPoint(path, NULL, 40.200000, 8.400000, 56.700000, 8.400000);
+CGPathAddQuadCurveToPoint(path, NULL, 64.650000, 8.400000, 72.375000, 12.375000);
+CGPathAddQuadCurveToPoint(path, NULL, 80.100000, 16.350000, 82.800000, 22.200000);
 CGPathCloseSubpath(path);
         triangulatorAppendPath(triangulator, path, CGPointMake(100, 100));
         CFRelease(path);
     }
-*/
+//*/
     NSMutableArray *context = [NSMutableArray new];
     triangulatorTriangulate(triangulator);
     triangulatorApply(triangulator, triangleIterator, (__bridge void*)context);

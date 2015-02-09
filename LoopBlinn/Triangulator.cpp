@@ -366,15 +366,13 @@ static void pathIterator(void *info, const CGPathElement *element) {
             CGPoint absolutePoint2 = CGPointMake(context.origin.x + element->points[1].x, context.origin.y + element->points[1].y);
             context.triangulator.quadraticTo(absolutePoint2, absolutePoint1);
             break;
-        }
-        case kCGPathElementAddCurveToPoint: {
+        } case kCGPathElementAddCurveToPoint: {
             CGPoint absolutePoint1 = CGPointMake(context.origin.x + element->points[0].x, context.origin.y + element->points[0].y);
             CGPoint absolutePoint2 = CGPointMake(context.origin.x + element->points[1].x, context.origin.y + element->points[1].y);
             CGPoint absolutePoint3 = CGPointMake(context.origin.x + element->points[2].x, context.origin.y + element->points[2].y);
             context.triangulator.cubicTo(absolutePoint3, absolutePoint1, absolutePoint2);
             break;
-        }
-        case kCGPathElementCloseSubpath:
+        } case kCGPathElementCloseSubpath:
             context.triangulator.close();
             break;
         default:
