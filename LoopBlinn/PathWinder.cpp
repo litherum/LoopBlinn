@@ -9,6 +9,7 @@
 #include "PathWinder.h"
 
 #include <vector>
+#include <list>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wconditional-uninitialized"
@@ -42,6 +43,9 @@ class PathComponent {
 public:
     virtual void emit(CGMutablePathRef) const = 0;
     virtual void emitReverse(CGMutablePathRef) const = 0;
+    virtual std::vector<CGPoint> boundingPolygon() const = 0;
+    virtual CGFloat area() const = 0;
+    virtual std::array<std::unique_ptr<PathComponent>, 2> subdivide() const = 0;
     virtual CGPoint getSource() const = 0;
     virtual CGPoint getDestination() const = 0;
 };
@@ -59,6 +63,19 @@ public:
 
     virtual void emitReverse(CGMutablePathRef path) const override {
         CGPathMoveToPoint(path, NULL, destination.x, destination.y);
+    }
+
+    virtual std::vector<CGPoint> boundingPolygon() const override {
+        return std::vector<CGPoint>();
+    }
+
+    virtual CGFloat area() const override {
+        return 0;
+    }
+
+    virtual std::array<std::unique_ptr<PathComponent>, 2> subdivide() const override {
+        return std::array<std::unique_ptr<PathComponent>, 2>{std::unique_ptr<PathComponent>(new MoveComponent(*this)),
+                                                             std::unique_ptr<PathComponent>(new MoveComponent(*this))};
     }
 
     virtual CGPoint getSource() const override {
@@ -87,6 +104,23 @@ public:
 
     virtual void emitReverse(CGMutablePathRef path) const override {
         CGPathAddLineToPoint(path, NULL, source.x, source.y);
+    }
+
+    virtual std::vector<CGPoint> boundingPolygon() const override {
+        std::vector<CGPoint> result;
+        result.push_back(source);
+        result.push_back(destination);
+        return result;
+    }
+
+    virtual CGFloat area() const override {
+        return 0;
+    }
+
+    virtual std::array<std::unique_ptr<PathComponent>, 2> subdivide() const override {
+        CGPoint mid(CGPointMake((source.x + destination.x) / 2, (source.y + destination.y) / 2));
+        return std::array<std::unique_ptr<PathComponent>, 2>{std::unique_ptr<PathComponent>(new LineComponent(source, mid)),
+                                                             std::unique_ptr<PathComponent>(new LineComponent(mid, destination))};
     }
 
     virtual CGPoint getSource() const override {
@@ -118,6 +152,15 @@ public:
 
     virtual void emitReverse(CGMutablePathRef path) const override {
         CGPathAddCurveToPoint(path, NULL, control2.x, control2.y, control1.x, control1.y, source.x, source.y);
+    }
+
+    virtual std::vector<CGPoint> boundingPolygon() const override {
+        std::vector<CGPoint> result;
+        result.push_back(source);
+        result.push_back(control1);
+        result.push_back(control2);
+        result.push_back(destination);
+        return result;
     }
 
     virtual CGPoint getSource() const override {
@@ -178,7 +221,7 @@ public:
         return Decomposition(Triangle(s, c1, v), Triangle(s, c2, v));
     }
 
-    CGFloat area() const {
+    CGFloat area() const override {
         Decomposition d(decompose());
         return d.t1.area() + d.t2.area();
     }
@@ -195,10 +238,11 @@ public:
                d.t2.intersect(CGAL::Point_2<K>(o.destination.x, o.destination.y));
     }
 
-    std::array<CubicComponent, 2> subdivide() {
+    virtual std::array<std::unique_ptr<PathComponent>, 2> subdivide() const override {
         auto d(subdivideCubic(source, control1, control2, destination));
-        return std::array<CubicComponent, 2>{CubicComponent(d[0][0], d[0][1], d[0][2], d[0][3]),
-                                             CubicComponent(d[1][0], d[1][1], d[1][2], d[1][3])};
+        return std::array<std::unique_ptr<PathComponent>, 2>{
+            std::unique_ptr<PathComponent>(new CubicComponent(d[0][0], d[0][1], d[0][2], d[0][3])),
+            std::unique_ptr<PathComponent>(new CubicComponent(d[1][0], d[1][1], d[1][2], d[1][3]))};
     }
 
 private:
@@ -223,6 +267,24 @@ public:
 
     virtual void emitReverse(CGMutablePathRef path) const override {
         CGPathAddQuadCurveToPoint(path, NULL, control.x, control.y, source.x, source.y);
+    }
+
+    virtual std::vector<CGPoint> boundingPolygon() const override {
+        std::vector<CGPoint> result;
+        result.push_back(source);
+        result.push_back(control);
+        result.push_back(destination);
+        return result;
+    }
+
+    virtual CGFloat area() const override {
+        return std::abs(CGAL::cross_product(CGAL::Vector_3<K>(control.x - source.x, control.y - source.y, 0), CGAL::Vector_3<K>(destination.x - source.x, destination.y - source.y, 0)).z());
+    }
+
+    virtual std::array<std::unique_ptr<PathComponent>, 2> subdivide() const override {
+        // FIXME: Implement this
+        return std::array<std::unique_ptr<PathComponent>, 2>{std::unique_ptr<PathComponent>(new QuadraticComponent(*this)),
+                                                             std::unique_ptr<PathComponent>(new QuadraticComponent(*this))};
     }
 
     virtual CGPoint getSource() const override {
@@ -259,6 +321,23 @@ public:
 
     virtual void emitReverse(CGMutablePathRef path) const override {
         CGPathCloseSubpath(path);
+    }
+
+    virtual std::vector<CGPoint> boundingPolygon() const override {
+        std::vector<CGPoint> result;
+        result.push_back(source);
+        result.push_back(destination);
+        return result;
+    }
+
+    virtual CGFloat area() const override {
+        return 0;
+    }
+
+    virtual std::array<std::unique_ptr<PathComponent>, 2> subdivide() const override {
+        CGPoint mid(CGPointMake((source.x + destination.x) / 2, (source.y + destination.y) / 2));
+        return std::array<std::unique_ptr<PathComponent>, 2>{std::unique_ptr<PathComponent>(new LineComponent(source, mid)),
+                                                             std::unique_ptr<PathComponent>(new CloseComponent(mid, destination))};
     }
 
     virtual CGPoint getSource() const override {
@@ -322,46 +401,74 @@ static void nonIntersectingPathApplierFunction(void *info, const CGPathElement *
     }
 }
 
+static bool intersect(CGPoint s1, CGPoint d1, CGPoint s2, CGPoint d2) {
+    CGSize v1 = CGSizeMake(d1.x - s1.x, d1.y - s1.y);
+    CGSize v2 = CGSizeMake(d2.x - s2.x, d2.y - s2.y);
+    CGFloat m, n;
+    assert(s1.x != s2.x || s1.y != s2.y || d1.x != d2.x || d1.y != d2.y);
+    if ((v1.width == 0 && v1.height == 0) || (v2.width == 0 && v2.height == 0)) // Source == destintation
+        return false;
+    if (v1.width != 0) {
+        if (v2.height / v2.width == v1.height / v1.width) // Parallel
+            return false; // FIXME: Where do parallel lines intersect?
+        n = (s1.y + (s2.x - s1.x) * v1.height / v1.width - s2.y) / (v2.height - v2.width * v1.height / v1.width);
+        m = (s2.x + n * v2.width - s1.x) / v1.width;
+    } else {
+        if (v2.width / v2.height == v1.width / v1.height) // Parallel
+            return false; // FIXME: Where do parallel lines intersect?
+        n = (s1.x + (s2.y - s1.y) * v1.width / v1.height - s2.x) / (v2.width - v2.height * v1.width / v1.height);
+        m = (s2.y + n * v2.height - s1.y) / v1.height;
+    }
+    CGFloat xError = std::abs((s1.x + m * v1.width) - (s2.x + n * v2.width));
+    CGFloat yError = std::abs((s1.y + m * v1.height) - (s2.y + n * v2.height));
+    assert(xError < 0.0001 && yError < 0.0001);
+    return m > 0 && m < 1 && n > 0 && n < 1;
+}
+
+static bool intersectPoly(std::vector<CGPoint> a, std::vector<CGPoint> b) {
+    if (a.size() < 2 || b.size() < 2)
+        return false; // FIXME: Point on line?
+    for (size_t i(0); i < a.size(); ++i)
+        for (size_t j(0); j < b.size(); ++j)
+            if (intersect(a[i], a[(i + 1) % a.size()], b[j], b[(j + 1) % b.size()]))
+                return true;
+    return false;
+}
+
 CGPathRef createNonIntersectingPath(CGPathRef path) {
     PathList pathList;
     NonIntersectingContext context(pathList);
     CGPathApply(path, &context, &nonIntersectingPathApplierFunction);
-    /*
+
     for (auto i(pathList.begin()); i != pathList.end(); ++i) {
-        CubicComponent* a(dynamic_cast<CubicComponent*>(i->get()));
-        if (a == nullptr)
-            continue;
         auto j(i);
         for (++j; j != pathList.end();) {
             bool incJ(true);
-            CubicComponent* b(dynamic_cast<CubicComponent*>(j->get()));
-            if (b != nullptr) {
-                if (a->intersect(*b)) {
-                    incJ = false;
-                    CGFloat aarea(a->area());
-                    CGFloat barea(b->area());
-                    if (aarea > barea) {
-                        auto subdivision(a->subdivide());
-                        pathList.insert(i, std::unique_ptr<PathComponent>(new CubicComponent(subdivision[0])));
-                        pathList.insert(i, std::unique_ptr<PathComponent>(new CubicComponent(subdivision[1])));
-                        i = pathList.erase(i);
+            if (intersectPoly((*i)->boundingPolygon(), (*j)->boundingPolygon())) {
+                incJ = false;
+                if ((*i)->area() > (*j)->area()) {
+                    auto subdivision((*i)->subdivide());
+                    size_t s(subdivision.size());
+                    for (auto& k : subdivision)
+                        pathList.insert(i, std::move(k));
+                    i = pathList.erase(i);
+                    for (size_t k(0); k < s; ++k)
                         --i;
-                        --i;
-                    } else {
-                        auto subdivision(b->subdivide());
-                        pathList.insert(j, std::unique_ptr<PathComponent>(new CubicComponent(subdivision[0])));
-                        pathList.insert(j, std::unique_ptr<PathComponent>(new CubicComponent(subdivision[1])));
-                        j = pathList.erase(j);
+                } else {
+                    auto subdivision((*j)->subdivide());
+                    size_t s(subdivision.size());
+                    for (auto& k : subdivision)
+                        pathList.insert(j, std::move(k));
+                    j = pathList.erase(j);
+                    for (size_t k(0); k < s; ++k)
                         --j;
-                        --j;
-                    }
                 }
             }
             if (incJ)
                 ++j;
         }
     }
-*/
+
     CGMutablePathRef result = CGPathCreateMutable();
     for (auto& i : pathList)
         i->emit(result);

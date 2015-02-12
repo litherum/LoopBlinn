@@ -78,42 +78,27 @@
     glUniform2f(_sizeUniformLocation, self.bounds.size.width, self.bounds.size.height);
 
     NSArray *context = [self triangulate];
-    _pointCount = (GLsizei)context.count * 3 * 2;
+    _pointCount = (GLsizei)context.count * 3;
 
     NSMutableData *data = [NSMutableData dataWithLength:_pointCount * 5 * sizeof(GLfloat)];
     GLfloat *p = [data mutableBytes];
     for (NSUInteger i = 0; i < context.count; ++i) {
         TriangulationItem *item = [context objectAtIndex:i];
-        p[i * 30 + 0]  = item.vertex1.x;
-        p[i * 30 + 1]  = item.vertex1.y;
-        p[i * 30 + 2]  = item.coordinate1.x;
-        p[i * 30 + 3]  = item.coordinate1.y;
-        p[i * 30 + 4]  = item.coordinate1.z;
-        p[i * 30 + 5]  = item.vertex2.x;
-        p[i * 30 + 6]  = item.vertex2.y;
-        p[i * 30 + 7]  = item.coordinate2.x;
-        p[i * 30 + 8]  = item.coordinate2.y;
-        p[i * 30 + 9]  = item.coordinate2.z;
-        p[i * 30 + 10]  = item.vertex2.x;
-        p[i * 30 + 11]  = item.vertex2.y;
-        p[i * 30 + 12]  = item.coordinate2.x;
-        p[i * 30 + 13]  = item.coordinate2.y;
-        p[i * 30 + 14]  = item.coordinate2.z;
-        p[i * 30 + 15] = item.vertex3.x;
-        p[i * 30 + 16] = item.vertex3.y;
-        p[i * 30 + 17] = item.coordinate3.x;
-        p[i * 30 + 18] = item.coordinate3.y;
-        p[i * 30 + 19] = item.coordinate3.z;
-        p[i * 30 + 20] = item.vertex3.x;
-        p[i * 30 + 21] = item.vertex3.y;
-        p[i * 30 + 22] = item.coordinate3.x;
-        p[i * 30 + 23] = item.coordinate3.y;
-        p[i * 30 + 24] = item.coordinate3.z;
-        p[i * 30 + 25]  = item.vertex1.x;
-        p[i * 30 + 26]  = item.vertex1.y;
-        p[i * 30 + 27]  = item.coordinate1.x;
-        p[i * 30 + 28]  = item.coordinate1.y;
-        p[i * 30 + 29]  = item.coordinate1.z;
+        p[i * 15 + 0]  = item.vertex1.x;
+        p[i * 15 + 1]  = item.vertex1.y;
+        p[i * 15 + 2]  = item.coordinate1.x;
+        p[i * 15 + 3]  = item.coordinate1.y;
+        p[i * 15 + 4]  = item.coordinate1.z;
+        p[i * 15 + 5]  = item.vertex2.x;
+        p[i * 15 + 6]  = item.vertex2.y;
+        p[i * 15 + 7]  = item.coordinate2.x;
+        p[i * 15 + 8]  = item.coordinate2.y;
+        p[i * 15 + 9]  = item.coordinate2.z;
+        p[i * 15 + 10] = item.vertex3.x;
+        p[i * 15 + 11] = item.vertex3.y;
+        p[i * 15 + 12] = item.coordinate3.x;
+        p[i * 15 + 13] = item.coordinate3.y;
+        p[i * 15 + 14] = item.coordinate3.z;
     }
     glBufferData(GL_ARRAY_BUFFER, data.length, data.bytes, GL_STATIC_DRAW);
     [self setNeedsDisplay:YES];
@@ -262,13 +247,13 @@ static void triangleIterator(void* c, CGPoint p1, CGPoint p2, CGPoint p3, vector
                 if (path == NULL)
                     continue;
                 CGPoint glyphOrigin = CGPointMake(origin.x + position.x, origin.y + position.y);
-                ///triangulatorAppendPath(triangulator, path, glyphOrigin);
+                triangulatorAppendPath(triangulator, path, glyphOrigin);
                 CFRelease(path);
             }
         }
     }
     CFRelease(frame);
-///*
+/*
     {
         CGMutablePathRef path = CGPathCreateMutable();
 CGPathMoveToPoint(path, NULL, 107.100000, -5.100000);
@@ -312,7 +297,7 @@ CGPathCloseSubpath(path);
         triangulatorAppendPath(triangulator, path, CGPointMake(100, 100));
         CFRelease(path);
     }
-//*/
+*/
     NSMutableArray *context = [NSMutableArray new];
     triangulatorTriangulate(triangulator);
     triangulatorApply(triangulator, triangleIterator, (__bridge void*)context);
@@ -322,7 +307,7 @@ CGPathCloseSubpath(path);
 
 - (void)drawRect:(NSRect)dirtyRect {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glDrawArrays(GL_LINES, 0, _pointCount);
+    glDrawArrays(GL_TRIANGLES, 0, _pointCount);
     [[self openGLContext] flushBuffer];
     GLenum glError = glGetError();
     assert(glError == GL_NO_ERROR);
