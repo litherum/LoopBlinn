@@ -409,12 +409,12 @@ static bool intersect(CGPoint s1, CGPoint d1, CGPoint s2, CGPoint d2) {
     if ((v1.width == 0 && v1.height == 0) || (v2.width == 0 && v2.height == 0)) // Source == destintation
         return false;
     if (v1.width != 0) {
-        if (v2.height / v2.width == v1.height / v1.width) // Parallel
+        if (std::abs(v2.height / v2.width - v1.height / v1.width) < 0.0001) // Parallel
             return false; // FIXME: Where do parallel lines intersect?
         n = (s1.y + (s2.x - s1.x) * v1.height / v1.width - s2.y) / (v2.height - v2.width * v1.height / v1.width);
         m = (s2.x + n * v2.width - s1.x) / v1.width;
     } else {
-        if (v2.width / v2.height == v1.width / v1.height) // Parallel
+        if (std::abs(v2.width / v2.height - v1.width / v1.height) < 0.0001) // Parallel
             return false; // FIXME: Where do parallel lines intersect?
         n = (s1.x + (s2.y - s1.y) * v1.width / v1.height - s2.x) / (v2.width - v2.height * v1.width / v1.height);
         m = (s2.y + n * v2.height - s1.y) / v1.height;
