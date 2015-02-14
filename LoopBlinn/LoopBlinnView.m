@@ -52,6 +52,9 @@
         NSOpenGLPFAColorSize, 32,
         NSOpenGLPFADepthSize, 24,
         NSOpenGLPFAStencilSize, 8,
+        NSOpenGLPFAMultisample,
+        NSOpenGLPFASampleBuffers, 1,
+        NSOpenGLPFASamples, 4,
         NSOpenGLPFAOpenGLProfile, NSOpenGLProfileVersion3_2Core,
         0};
     NSOpenGLPixelFormat *pixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attributes];
