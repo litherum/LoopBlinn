@@ -12,15 +12,7 @@ void main() {
     float l = coordinateV.y;
     float m = coordinateV.z;
 
-    float dkdx = dcoorddx.x;
-    float dldx = dcoorddx.y;
-    float dmdx = dcoorddx.z;
-
-    float dkdy = dcoorddy.x;
-    float dldy = dcoorddy.y;
-    float dmdy = dcoorddy.z;
-
-    vec2 grad = vec2(3 * k * k * dkdx - m * dldx - l * dmdx, 3 * k * k * dkdy - m * dldy - l * dmdy);
+    vec2 grad = transpose(mat2x3(dcoorddx, dcoorddy)) * vec3(3 * k * k, -m, -l);
     float signedDistance = (k * k * k - l * m) / length(grad);
     outColor = vec4(1.0, 0.0, 0.0, smoothstep(0.5, -0.5, signedDistance));
 }
