@@ -15,14 +15,15 @@
 		C28A55B31A831A960034B66E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C28A55B21A831A960034B66E /* main.m */; };
 		C28A55B51A831A960034B66E /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C28A55B41A831A960034B66E /* Images.xcassets */; };
 		C28A55B81A831A960034B66E /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = C28A55B61A831A960034B66E /* MainMenu.xib */; };
-		C28A55C41A831A970034B66E /* LoopBlinnTests.m in Sources */ = {isa = PBXBuildFile; fileRef = C28A55C31A831A970034B66E /* LoopBlinnTests.m */; };
 		C28A55CE1A831B120034B66E /* LoopBlinnView.m in Sources */ = {isa = PBXBuildFile; fileRef = C28A55CD1A831B120034B66E /* LoopBlinnView.m */; };
 		C28A55D11A833AF80034B66E /* Vertex.vs in Resources */ = {isa = PBXBuildFile; fileRef = C28A55D01A833AF80034B66E /* Vertex.vs */; };
 		C28A55D31A833B170034B66E /* Fragment.fs in Resources */ = {isa = PBXBuildFile; fileRef = C28A55D21A833B170034B66E /* Fragment.fs */; };
+		C2F745B91B1A7AD900812AE5 /* LoopBlinn_Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F745B81B1A7AD900812AE5 /* LoopBlinn_Tests.swift */; };
+		C2F745C21B1A7E8200812AE5 /* CGPathIterator.c in Sources */ = {isa = PBXBuildFile; fileRef = C2F745C01B1A7E8200812AE5 /* CGPathIterator.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		C28A55BE1A831A970034B66E /* PBXContainerItemProxy */ = {
+		C2F745BA1B1A7AD900812AE5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = C28A55A21A831A960034B66E /* Project object */;
 			proxyType = 1;
@@ -46,13 +47,16 @@
 		C28A55B21A831A960034B66E /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		C28A55B41A831A960034B66E /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		C28A55B71A831A960034B66E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
-		C28A55BD1A831A970034B66E /* LoopBlinnTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LoopBlinnTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		C28A55C21A831A970034B66E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		C28A55C31A831A970034B66E /* LoopBlinnTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LoopBlinnTests.m; sourceTree = "<group>"; };
 		C28A55CD1A831B120034B66E /* LoopBlinnView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoopBlinnView.m; sourceTree = "<group>"; };
 		C28A55CF1A831B350034B66E /* LoopBlinnView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LoopBlinnView.h; sourceTree = "<group>"; };
 		C28A55D01A833AF80034B66E /* Vertex.vs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Vertex.vs; sourceTree = "<group>"; };
 		C28A55D21A833B170034B66E /* Fragment.fs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Fragment.fs; sourceTree = "<group>"; };
+		C2F745B41B1A7AD900812AE5 /* LoopBlinn Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "LoopBlinn Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		C2F745B71B1A7AD900812AE5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C2F745B81B1A7AD900812AE5 /* LoopBlinn_Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopBlinn_Tests.swift; sourceTree = "<group>"; };
+		C2F745BF1B1A7E8100812AE5 /* LoopBlinn Tests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "LoopBlinn Tests-Bridging-Header.h"; sourceTree = "<group>"; };
+		C2F745C01B1A7E8200812AE5 /* CGPathIterator.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = CGPathIterator.c; sourceTree = "<group>"; };
+		C2F745C11B1A7E8200812AE5 /* CGPathIterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGPathIterator.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,7 +69,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		C28A55BA1A831A970034B66E /* Frameworks */ = {
+		C2F745B11B1A7AD900812AE5 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -81,7 +85,7 @@
 				1C4ACA441A83DBD4007C9347 /* libgmp.10.dylib */,
 				1C4ACA421A83D8FF007C9347 /* libCGAL.10.0.4.dylib */,
 				C28A55AC1A831A960034B66E /* LoopBlinn */,
-				C28A55C01A831A970034B66E /* LoopBlinnTests */,
+				C2F745B51B1A7AD900812AE5 /* LoopBlinn Tests */,
 				C28A55AB1A831A960034B66E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,7 +94,7 @@
 			isa = PBXGroup;
 			children = (
 				C28A55AA1A831A960034B66E /* LoopBlinn.app */,
-				C28A55BD1A831A970034B66E /* LoopBlinnTests.xctest */,
+				C2F745B41B1A7AD900812AE5 /* LoopBlinn Tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -125,19 +129,22 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		C28A55C01A831A970034B66E /* LoopBlinnTests */ = {
+		C2F745B51B1A7AD900812AE5 /* LoopBlinn Tests */ = {
 			isa = PBXGroup;
 			children = (
-				C28A55C31A831A970034B66E /* LoopBlinnTests.m */,
-				C28A55C11A831A970034B66E /* Supporting Files */,
+				C2F745B81B1A7AD900812AE5 /* LoopBlinn_Tests.swift */,
+				C2F745B61B1A7AD900812AE5 /* Supporting Files */,
+				C2F745C01B1A7E8200812AE5 /* CGPathIterator.c */,
+				C2F745C11B1A7E8200812AE5 /* CGPathIterator.h */,
+				C2F745BF1B1A7E8100812AE5 /* LoopBlinn Tests-Bridging-Header.h */,
 			);
-			path = LoopBlinnTests;
+			path = "LoopBlinn Tests";
 			sourceTree = "<group>";
 		};
-		C28A55C11A831A970034B66E /* Supporting Files */ = {
+		C2F745B61B1A7AD900812AE5 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				C28A55C21A831A970034B66E /* Info.plist */,
+				C2F745B71B1A7AD900812AE5 /* Info.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -162,22 +169,22 @@
 			productReference = C28A55AA1A831A960034B66E /* LoopBlinn.app */;
 			productType = "com.apple.product-type.application";
 		};
-		C28A55BC1A831A970034B66E /* LoopBlinnTests */ = {
+		C2F745B31B1A7AD900812AE5 /* LoopBlinn Tests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = C28A55CA1A831A970034B66E /* Build configuration list for PBXNativeTarget "LoopBlinnTests" */;
+			buildConfigurationList = C2F745BC1B1A7AD900812AE5 /* Build configuration list for PBXNativeTarget "LoopBlinn Tests" */;
 			buildPhases = (
-				C28A55B91A831A970034B66E /* Sources */,
-				C28A55BA1A831A970034B66E /* Frameworks */,
-				C28A55BB1A831A970034B66E /* Resources */,
+				C2F745B01B1A7AD900812AE5 /* Sources */,
+				C2F745B11B1A7AD900812AE5 /* Frameworks */,
+				C2F745B21B1A7AD900812AE5 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				C28A55BF1A831A970034B66E /* PBXTargetDependency */,
+				C2F745BB1B1A7AD900812AE5 /* PBXTargetDependency */,
 			);
-			name = LoopBlinnTests;
-			productName = LoopBlinnTests;
-			productReference = C28A55BD1A831A970034B66E /* LoopBlinnTests.xctest */;
+			name = "LoopBlinn Tests";
+			productName = "LoopBlinn Tests";
+			productReference = C2F745B41B1A7AD900812AE5 /* LoopBlinn Tests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
@@ -192,8 +199,8 @@
 					C28A55A91A831A960034B66E = {
 						CreatedOnToolsVersion = 6.1.1;
 					};
-					C28A55BC1A831A970034B66E = {
-						CreatedOnToolsVersion = 6.1.1;
+					C2F745B31B1A7AD900812AE5 = {
+						CreatedOnToolsVersion = 6.3.2;
 						TestTargetID = C28A55A91A831A960034B66E;
 					};
 				};
@@ -212,7 +219,7 @@
 			projectRoot = "";
 			targets = (
 				C28A55A91A831A960034B66E /* LoopBlinn */,
-				C28A55BC1A831A970034B66E /* LoopBlinnTests */,
+				C2F745B31B1A7AD900812AE5 /* LoopBlinn Tests */,
 			);
 		};
 /* End PBXProject section */
@@ -229,7 +236,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		C28A55BB1A831A970034B66E /* Resources */ = {
+		C2F745B21B1A7AD900812AE5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -251,21 +258,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		C28A55B91A831A970034B66E /* Sources */ = {
+		C2F745B01B1A7AD900812AE5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C28A55C41A831A970034B66E /* LoopBlinnTests.m in Sources */,
+				C2F745C21B1A7E8200812AE5 /* CGPathIterator.c in Sources */,
+				C2F745B91B1A7AD900812AE5 /* LoopBlinn_Tests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		C28A55BF1A831A970034B66E /* PBXTargetDependency */ = {
+		C2F745BB1B1A7AD900812AE5 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = C28A55A91A831A960034B66E /* LoopBlinn */;
-			targetProxy = C28A55BE1A831A970034B66E /* PBXContainerItemProxy */;
+			targetProxy = C2F745BA1B1A7AD900812AE5 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -398,38 +406,47 @@
 			};
 			name = Release;
 		};
-		C28A55CB1A831A970034B66E /* Debug */ = {
+		C2F745BD1B1A7AD900812AE5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
+				DEBUG_INFORMATION_FORMAT = dwarf;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",
 				);
+				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = LoopBlinnTests/Info.plist;
+				INFOPLIST_FILE = "LoopBlinn Tests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "LoopBlinn Tests/LoopBlinn Tests-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LoopBlinn.app/Contents/MacOS/LoopBlinn";
 			};
 			name = Debug;
 		};
-		C28A55CC1A831A970034B66E /* Release */ = {
+		C2F745BE1B1A7AD900812AE5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
+				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(DEVELOPER_FRAMEWORKS_DIR)",
 					"$(inherited)",
 				);
-				INFOPLIST_FILE = LoopBlinnTests/Info.plist;
+				GCC_NO_COMMON_BLOCKS = YES;
+				INFOPLIST_FILE = "LoopBlinn Tests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "LoopBlinn Tests/LoopBlinn Tests-Bridging-Header.h";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LoopBlinn.app/Contents/MacOS/LoopBlinn";
 			};
 			name = Release;
@@ -455,14 +472,13 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		C28A55CA1A831A970034B66E /* Build configuration list for PBXNativeTarget "LoopBlinnTests" */ = {
+		C2F745BC1B1A7AD900812AE5 /* Build configuration list for PBXNativeTarget "LoopBlinn Tests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				C28A55CB1A831A970034B66E /* Debug */,
-				C28A55CC1A831A970034B66E /* Release */,
+				C2F745BD1B1A7AD900812AE5 /* Debug */,
+				C2F745BE1B1A7AD900812AE5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
