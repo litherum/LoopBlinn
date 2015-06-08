@@ -184,6 +184,8 @@ func decomposePath(path: CGPathRef) -> CGPathRef {
             ++element2Index
         })
 
+        sort(&ts)
+
         switch element1.type.value {
         case kCGPathElementMoveToPoint.value:
             CGPathMoveToPoint(result, nil, element1.points[0].x, element1.points[0].y)
