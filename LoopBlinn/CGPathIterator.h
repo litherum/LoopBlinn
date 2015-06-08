@@ -12,7 +12,7 @@
 #import <CoreGraphics/CoreGraphics.h>
 
 
-typedef void (^CGPathIterator)(const CGPathElement *);
+typedef void (^CGPathIterator)(CGPathElement);
 void iterateCGPath(CGPathRef, CGPathIterator);
 
 #endif /* defined(__LoopBlinn__CGPathIterator__) */

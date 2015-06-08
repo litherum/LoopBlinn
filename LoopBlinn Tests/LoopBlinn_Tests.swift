@@ -23,17 +23,16 @@ class LoopBlinn_Tests: XCTestCase {
 
     func dumpPath(path: CGPathRef) -> String {
         var result = ""
-        iterateCGPath(path, { element in
-            let e = element.memory
-            switch e.type.value {
+        iterateCGPath(path, {element in
+            switch element.type.value {
             case kCGPathElementMoveToPoint.value:
-                result = result + "m \(e.points[0]) "
+                result = result + "m \(element.points[0]) "
             case kCGPathElementAddLineToPoint.value:
-                result = result + "l \(e.points[0]) "
+                result = result + "l \(element.points[0]) "
             case kCGPathElementAddQuadCurveToPoint.value:
-                result = result + "q \(e.points[0]) \(e.points[1])"
+                result = result + "q \(element.points[0]) \(element.points[1])"
             case kCGPathElementAddCurveToPoint.value:
-                result = result + "c \(e.points[0]) \(e.points[1]) \(e.points[2]) "
+                result = result + "c \(element.points[0]) \(element.points[1]) \(element.points[2]) "
             case kCGPathElementCloseSubpath.value:
                 result = result + "z "
             default:
@@ -60,6 +59,44 @@ class LoopBlinn_Tests: XCTestCase {
         CGPathAddLineToPoint(path, nil, 200, 100)
         CGPathCloseSubpath(path)
         XCTAssertEqual(dumpPath(path), "m (100.0, 200.0) l (300.0, 200.0) l (200.0, 300.0) l (200.0, 100.0) z")
+    }
+
+    func distance(point0: CGPoint, _ point1: CGPoint) -> CGFloat {
+        let dx = point1.x - point0.x
+        let dy = point1.y - point1.y
+        return sqrt(dx * dx + dy * dy)
+    }
+
+    func testSubdivision() {
+    /*
+        let trials = 10000
+        let upperBound = UInt32(100)
+        for i in 0 ..< trials {
+            let p1 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
+            let p2 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
+            let p3 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
+            let p4 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
+            let t1 = CGFloat(arc4random_uniform(upperBound)) / CGFloat(upperBound)
+            let t2 = CGFloat(arc4random_uniform(upperBound)) / CGFloat(upperBound)
+            if t1 == t2 {
+                continue
+            }
+            let minT = min(t1, t2)
+            let maxT = max(t1, t2)
+
+            let adjustedMinT = minT / maxT
+            let adjustedMaxT = (maxT - minT) / (1 - minT)
+            let beginning = subdivide((p1, p2, p3, p4), maxT).0
+            let end = subdivide((p1, p2, p3, p4), minT).1
+            let middle1 = subdivide((beginning.0, beginning.1, beginning.2, beginning.3), adjustedMinT).1
+            let middle2 = subdivide((end.0, end.1, end.2, end.3), adjustedMaxT).0
+            let epsilon = CGFloat(0.001)
+            XCTAssertEqualWithAccuracy(distance(middle1.0, middle2.0), 0, epsilon, "Points need to be the same")
+            XCTAssertEqualWithAccuracy(distance(middle1.1, middle2.1), 0, epsilon, "Points need to be the same")
+            XCTAssertEqualWithAccuracy(distance(middle1.2, middle2.2), 0, epsilon, "Points need to be the same")
+            XCTAssertEqualWithAccuracy(distance(middle1.3, middle2.3), 0, epsilon, "Points need to be the same")
+        }
+    */
     }
     
 }

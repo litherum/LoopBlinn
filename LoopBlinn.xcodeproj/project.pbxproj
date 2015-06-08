@@ -11,6 +11,9 @@
 		1C4ACA431A83D8FF007C9347 /* libCGAL.10.0.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C4ACA421A83D8FF007C9347 /* libCGAL.10.0.4.dylib */; };
 		1C4ACA451A83DBD4007C9347 /* libgmp.10.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C4ACA441A83DBD4007C9347 /* libgmp.10.dylib */; };
 		1CCAA7FD1A88376A00135A40 /* PathWinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CCAA7FB1A88376A00135A40 /* PathWinder.cpp */; };
+		C2327B7F1B251C19001FFCA5 /* LineIntersections.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2327B7E1B251C19001FFCA5 /* LineIntersections.swift */; };
+		C2327B831B251CF1001FFCA5 /* IntersectionTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2327B821B251CF1001FFCA5 /* IntersectionTypes.swift */; };
+		C2327B851B251F0B001FFCA5 /* CubicIntersections.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2327B841B251F0B001FFCA5 /* CubicIntersections.swift */; };
 		C28A55B11A831A960034B66E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C28A55B01A831A960034B66E /* AppDelegate.m */; };
 		C28A55B31A831A960034B66E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C28A55B21A831A960034B66E /* main.m */; };
 		C28A55B51A831A960034B66E /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C28A55B41A831A960034B66E /* Images.xcassets */; };
@@ -19,7 +22,8 @@
 		C28A55D11A833AF80034B66E /* Vertex.vs in Resources */ = {isa = PBXBuildFile; fileRef = C28A55D01A833AF80034B66E /* Vertex.vs */; };
 		C28A55D31A833B170034B66E /* Fragment.fs in Resources */ = {isa = PBXBuildFile; fileRef = C28A55D21A833B170034B66E /* Fragment.fs */; };
 		C2F745B91B1A7AD900812AE5 /* LoopBlinn_Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F745B81B1A7AD900812AE5 /* LoopBlinn_Tests.swift */; };
-		C2F745C21B1A7E8200812AE5 /* CGPathIterator.c in Sources */ = {isa = PBXBuildFile; fileRef = C2F745C01B1A7E8200812AE5 /* CGPathIterator.c */; };
+		C2F745C41B1A89E600812AE5 /* PathDecomposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2F745C31B1A89E600812AE5 /* PathDecomposer.swift */; };
+		C2F745C51B1A8A4C00812AE5 /* CGPathIterator.c in Sources */ = {isa = PBXBuildFile; fileRef = C2F745C01B1A7E8200812AE5 /* CGPathIterator.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -40,6 +44,9 @@
 		1C4ACA471A83FB28007C9347 /* CFPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CFPtr.h; sourceTree = "<group>"; };
 		1CCAA7FB1A88376A00135A40 /* PathWinder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PathWinder.cpp; sourceTree = "<group>"; };
 		1CCAA7FC1A88376A00135A40 /* PathWinder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathWinder.h; sourceTree = "<group>"; };
+		C2327B7E1B251C19001FFCA5 /* LineIntersections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineIntersections.swift; sourceTree = "<group>"; };
+		C2327B821B251CF1001FFCA5 /* IntersectionTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntersectionTypes.swift; sourceTree = "<group>"; };
+		C2327B841B251F0B001FFCA5 /* CubicIntersections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CubicIntersections.swift; sourceTree = "<group>"; };
 		C28A55AA1A831A960034B66E /* LoopBlinn.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LoopBlinn.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C28A55AE1A831A960034B66E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C28A55AF1A831A960034B66E /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -54,9 +61,10 @@
 		C2F745B41B1A7AD900812AE5 /* LoopBlinn Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "LoopBlinn Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		C2F745B71B1A7AD900812AE5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C2F745B81B1A7AD900812AE5 /* LoopBlinn_Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoopBlinn_Tests.swift; sourceTree = "<group>"; };
-		C2F745BF1B1A7E8100812AE5 /* LoopBlinn Tests-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "LoopBlinn Tests-Bridging-Header.h"; sourceTree = "<group>"; };
-		C2F745C01B1A7E8200812AE5 /* CGPathIterator.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = CGPathIterator.c; sourceTree = "<group>"; };
-		C2F745C11B1A7E8200812AE5 /* CGPathIterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CGPathIterator.h; sourceTree = "<group>"; };
+		C2F745BF1B1A7E8100812AE5 /* LoopBlinn-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "LoopBlinn-Bridging-Header.h"; path = "LoopBlinn/LoopBlinn-Bridging-Header.h"; sourceTree = SOURCE_ROOT; };
+		C2F745C01B1A7E8200812AE5 /* CGPathIterator.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = CGPathIterator.c; path = LoopBlinn/CGPathIterator.c; sourceTree = SOURCE_ROOT; };
+		C2F745C11B1A7E8200812AE5 /* CGPathIterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CGPathIterator.h; path = LoopBlinn/CGPathIterator.h; sourceTree = SOURCE_ROOT; };
+		C2F745C31B1A89E600812AE5 /* PathDecomposer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PathDecomposer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -115,7 +123,14 @@
 				1C4ACA401A83D757007C9347 /* Triangulator.cpp */,
 				1C4ACA471A83FB28007C9347 /* CFPtr.h */,
 				1CCAA7FB1A88376A00135A40 /* PathWinder.cpp */,
+				C2F745C01B1A7E8200812AE5 /* CGPathIterator.c */,
+				C2F745C11B1A7E8200812AE5 /* CGPathIterator.h */,
+				C2F745BF1B1A7E8100812AE5 /* LoopBlinn-Bridging-Header.h */,
 				1CCAA7FC1A88376A00135A40 /* PathWinder.h */,
+				C2F745C31B1A89E600812AE5 /* PathDecomposer.swift */,
+				C2327B821B251CF1001FFCA5 /* IntersectionTypes.swift */,
+				C2327B7E1B251C19001FFCA5 /* LineIntersections.swift */,
+				C2327B841B251F0B001FFCA5 /* CubicIntersections.swift */,
 			);
 			path = LoopBlinn;
 			sourceTree = "<group>";
@@ -134,9 +149,6 @@
 			children = (
 				C2F745B81B1A7AD900812AE5 /* LoopBlinn_Tests.swift */,
 				C2F745B61B1A7AD900812AE5 /* Supporting Files */,
-				C2F745C01B1A7E8200812AE5 /* CGPathIterator.c */,
-				C2F745C11B1A7E8200812AE5 /* CGPathIterator.h */,
-				C2F745BF1B1A7E8100812AE5 /* LoopBlinn Tests-Bridging-Header.h */,
 			);
 			path = "LoopBlinn Tests";
 			sourceTree = "<group>";
@@ -251,9 +263,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				C28A55B31A831A960034B66E /* main.m in Sources */,
+				C2327B831B251CF1001FFCA5 /* IntersectionTypes.swift in Sources */,
+				C2327B851B251F0B001FFCA5 /* CubicIntersections.swift in Sources */,
 				1C4ACA411A83D757007C9347 /* Triangulator.cpp in Sources */,
 				C28A55B11A831A960034B66E /* AppDelegate.m in Sources */,
+				C2F745C41B1A89E600812AE5 /* PathDecomposer.swift in Sources */,
+				C2327B7F1B251C19001FFCA5 /* LineIntersections.swift in Sources */,
 				1CCAA7FD1A88376A00135A40 /* PathWinder.cpp in Sources */,
+				C2F745C51B1A8A4C00812AE5 /* CGPathIterator.c in Sources */,
 				C28A55CE1A831B120034B66E /* LoopBlinnView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -262,7 +279,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C2F745C21B1A7E8200812AE5 /* CGPathIterator.c in Sources */,
 				C2F745B91B1A7AD900812AE5 /* LoopBlinn_Tests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -327,6 +343,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = macosx;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 			};
 			name = Debug;
 		};
@@ -363,6 +380,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = macosx;
+				SWIFT_OBJC_BRIDGING_HEADER = "";
 			};
 			name = Release;
 		};
@@ -370,6 +388,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -383,6 +402,8 @@
 					/opt/local/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "LoopBlinn/LoopBlinn-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
@@ -390,6 +411,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -403,6 +425,7 @@
 					/opt/local/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OBJC_BRIDGING_HEADER = "LoopBlinn/LoopBlinn-Bridging-Header.h";
 			};
 			name = Release;
 		};
@@ -425,7 +448,7 @@
 				INFOPLIST_FILE = "LoopBlinn Tests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "LoopBlinn Tests/LoopBlinn Tests-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "LoopBlinn/LoopBlinn-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LoopBlinn.app/Contents/MacOS/LoopBlinn";
 			};
@@ -446,7 +469,7 @@
 				INFOPLIST_FILE = "LoopBlinn Tests/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks @loader_path/../Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_OBJC_BRIDGING_HEADER = "LoopBlinn Tests/LoopBlinn Tests-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "LoopBlinn/LoopBlinn-Bridging-Header.h";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/LoopBlinn.app/Contents/MacOS/LoopBlinn";
 			};
 			name = Release;
@@ -479,6 +502,7 @@
 				C2F745BE1B1A7AD900812AE5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -10,7 +10,7 @@
 
 static void applyCallback(void *info, const CGPathElement *element) {
     CGPathIterator iterator = (CGPathIterator)info;
-    iterator(element);
+    iterator(*element);
 }
 
 void iterateCGPath(CGPathRef path, CGPathIterator iterator) {
