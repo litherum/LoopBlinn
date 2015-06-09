@@ -165,7 +165,7 @@ private func convenientIterateCGPath(path: CGPathRef, c: (CGPathElement, CGPoint
     var elementIndex = 0
     var currentPoint = CGPointMake(0, 0)
     var subpathStart = CGPointMake(0, 0)
-    iterateCGPath(path, {element in
+    iterateCGPath(path) {element in
         switch element.type.value {
         case kCGPathElementMoveToPoint.value:
             subpathStart = element.points[0]
@@ -177,7 +177,7 @@ private func convenientIterateCGPath(path: CGPathRef, c: (CGPathElement, CGPoint
 
         currentPoint = destination(element)
         ++elementIndex
-    })
+    }
 }
 
 private func updatePath(path: CGMutablePathRef, ts: [CGFloat], currentPoint: CGPoint, subpathStart: CGPoint, element: CGPathElement) {
@@ -208,22 +208,22 @@ private func updatePath(path: CGMutablePathRef, ts: [CGFloat], currentPoint: CGP
 
 public func decomposePath(path: CGPathRef) -> CGPathRef {
     var result = CGPathCreateMutable()
-    convenientIterateCGPath(path, { (element1, currentPoint1, subpathStart1, element1Index) in
+    convenientIterateCGPath(path) { (element1, currentPoint1, subpathStart1, element1Index) in
         var ts: [CGFloat] = []
         if let (t1, t2) = selfIntersect(currentPoint1, element1) {
             ts.append(t1)
             ts.append(t2)
         }
 
-        convenientIterateCGPath(path, {(element2, currentPoint2, subpathStart2, element2Index) in
-            if element2Index > element1Index {
+        convenientIterateCGPath(path) {(element2, currentPoint2, subpathStart2, element2Index) in
+            if element2Index != element1Index {
                 for t in intersect(currentPoint1, subpathStart1, element1, currentPoint2, subpathStart2, element2) {
                     ts.append(t)
                 }
             }
-        })
+        }
 
         updatePath(result, processTs(ts), currentPoint1, subpathStart1, element1)
-    })
+    }
     return result;
 }

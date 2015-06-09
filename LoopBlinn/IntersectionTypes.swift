@@ -94,9 +94,9 @@ func findZeroes(a: CGFloat, b: CGFloat, c: CGFloat, d: CGFloat) -> [CGFloat] {
         t.append(2 * squareRoot * cos((th + 4 * CGFloat(M_PI)) / 3) - A / 3);
     }
     
-    t = filter(t, {candidate -> Bool in
+    t = filter(t) {candidate -> Bool in
         return candidate >= 0 && candidate <= 1
-    })
+    }
     
     return t
 }

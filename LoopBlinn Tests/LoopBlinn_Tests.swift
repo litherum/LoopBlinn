@@ -37,7 +37,7 @@ class LoopBlinn_Tests: XCTestCase {
 
     func dumpPath(path: CGPathRef) -> String {
         var result = ""
-        iterateCGPath(path, {element in
+        iterateCGPath(path) {element in
             switch element.type.value {
             case kCGPathElementMoveToPoint.value:
                 result = result + "m \(element.points[0]) "
@@ -52,7 +52,7 @@ class LoopBlinn_Tests: XCTestCase {
             default:
                 XCTFail("Unknown path element type")
             }
-        })
+        }
         result = result.substringToIndex(result.endIndex.predecessor())
         return result
     }
@@ -111,13 +111,23 @@ class LoopBlinn_Tests: XCTestCase {
         }
     }
 
-    func testSimplePath() {
+    func testSimpleLineIntersections() {
         var path = CGPathCreateMutable()
         CGPathMoveToPoint(path, nil, 0, 0)
         CGPathAddLineToPoint(path, nil, 100, 0)
-        CGPathAddLineToPoint(path, nil, 50, 50 * sqrt(3))
+        CGPathAddLineToPoint(path, nil, 50, 50)
         CGPathCloseSubpath(path)
-        XCTAssertEqual(dumpPath(decomposePath(path)), "m (0.0, 0.0) l (100.0, 0.0) l (50.0, 86.6025403784439) l (0.0, 0.0) z", "Decomposed path")
+        XCTAssertEqual(dumpPath(decomposePath(path)), "m (0.0, 0.0) l (100.0, 0.0) l (50.0, 50.0) l (0.0, 0.0) z", "Decomposed path")
+
+        path = CGPathCreateMutable()
+        CGPathMoveToPoint(path, nil, 50, 0)
+        CGPathAddLineToPoint(path, nil, 50, 100)
+        CGPathAddLineToPoint(path, nil, 100, 50)
+        CGPathAddLineToPoint(path, nil, 0, 50)
+        CGPathCloseSubpath(path)
+        XCTAssertEqual(dumpPath(decomposePath(path)), "m (50.0, 0.0) l (50.0, 50.0) l (50.0, 100.0) l (100.0, 50.0) l (50.0, 50.0) l (0.0, 50.0) l (50.0, 0.0) z", "Decomposed path")
     }
+
+    // FIXME: Test the same element appearing twice in the same curve. Could even be masquerading as a cubic when the original is a quadratic.
     
 }

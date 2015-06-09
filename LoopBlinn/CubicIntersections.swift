@@ -96,14 +96,14 @@ private func intersect(cubic0: IntersectingCubic, cubic1: IntersectingCubic, dep
     }
 
     if let result = lineApproximation(cubic0.cubic, cubic1.cubic) {
-        return result.map({(s, t) in
+        return result.map() {(s, t) in
             (s * (cubic0.maxT - cubic0.minT) + cubic0.minT, t * (cubic1.maxT - cubic1.minT) + cubic1.minT)
-        })
+        }
     }
     if let result = lineApproximation(cubic1.cubic, cubic0.cubic) {
-        return result.map({(s, t) in
+        return result.map() {(s, t) in
             (t * (cubic0.maxT - cubic0.minT) + cubic0.minT, s * (cubic1.maxT - cubic1.minT) + cubic1.minT)
-        })
+        }
     }
     
     if let (minT, maxT) = clip(cubic0.cubic, cubic1.cubic) {
