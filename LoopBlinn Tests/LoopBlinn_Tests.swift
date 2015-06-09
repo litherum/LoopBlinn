@@ -122,10 +122,10 @@ class LoopBlinn_Tests: XCTestCase {
         path = CGPathCreateMutable()
         CGPathMoveToPoint(path, nil, 50, 0)
         CGPathAddLineToPoint(path, nil, 50, 100)
-        CGPathAddLineToPoint(path, nil, 100, 50)
+        CGPathAddLineToPoint(path, nil, 125, 50)
         CGPathAddLineToPoint(path, nil, 0, 50)
         CGPathCloseSubpath(path)
-        XCTAssertEqual(dumpPath(decomposePath(path)), "m (50.0, 0.0) l (50.0, 50.0) l (50.0, 100.0) l (100.0, 50.0) l (50.0, 50.0) l (0.0, 50.0) l (50.0, 0.0) z", "Decomposed path")
+        XCTAssertEqual(dumpPath(decomposePath(path)), "m (50.0, 0.0) l (50.0, 50.0) l (50.0, 100.0) l (125.0, 50.0) l (50.0, 50.0) l (0.0, 50.0) l (50.0, 0.0) z", "Decomposed path")
     }
 
     // FIXME: Test the same element appearing twice in the same curve. Could even be masquerading as a cubic when the original is a quadratic.
