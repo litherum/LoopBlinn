@@ -20,11 +20,11 @@ func intersectCubicAndCubic(cubic0: Cubic, cubic1: Cubic) -> [CGFloat] {
     return intersect(IntersectingCubic(cubic: cubic0, minT: 0, maxT: 1), IntersectingCubic(cubic: cubic1, minT: 0, maxT: 1), 0).map({$0.0})
 }
 
-func lerp(point0: CGPoint, point1: CGPoint, t: CGFloat) -> CGPoint {
+private func lerp(point0: CGPoint, point1: CGPoint, t: CGFloat) -> CGPoint {
     return CGPointMake(point1.x * t + point0.x * (1 - t), point1.y * t + point0.y * (1 - t))
 }
 
-func subdivide(cubic: Cubic, t: CGFloat) -> (Cubic, Cubic) {
+private func subdivide(cubic: Cubic, t: CGFloat) -> (Cubic, Cubic) {
     var p01 = lerp(cubic.0, cubic.1, t)
     var p12 = lerp(cubic.1, cubic.2, t)
     var p23 = lerp(cubic.2, cubic.3, t)
@@ -39,7 +39,7 @@ func subdivideMiddle(cubic: Cubic, minT: CGFloat, maxT: CGFloat) -> Cubic {
     return subdivide(subdivide(cubic, minT).1, adjustedMaxT).0
 }
 
-func interpolatePoint(t: CGFloat, cubic: Cubic) -> CGPoint {
+private func interpolatePoint(t: CGFloat, cubic: Cubic) -> CGPoint {
     let oneMinusT = 1 - t
     let b0 = oneMinusT * oneMinusT * oneMinusT
     let b1 = 3 * t * oneMinusT * oneMinusT
@@ -52,7 +52,7 @@ func interpolatePoint(t: CGFloat, cubic: Cubic) -> CGPoint {
     return CGPointZero + b0 * size0 + b1 * size1 + b2 * size2 + b3 * size3
 }
 
-func lineApproximation(cubic0: Cubic, cubic1: Cubic) -> [(CGFloat, CGFloat)]? {
+private func lineApproximation(cubic0: Cubic, cubic1: Cubic) -> [(CGFloat, CGFloat)]? {
     var approximatingLine = cross(extendPoint(cubic1.0), extendPoint(cubic1.3))
     var distance1 = abs(dot(approximatingLine, extendPoint(cubic1.1)))
     var distance2 = abs(dot(approximatingLine, extendPoint(cubic1.2)))
@@ -84,13 +84,13 @@ func lineApproximation(cubic0: Cubic, cubic1: Cubic) -> [(CGFloat, CGFloat)]? {
     return nil
 }
 
-struct IntersectingCubic {
+private struct IntersectingCubic {
     var cubic: Cubic
     var minT: CGFloat
     var maxT: CGFloat
 }
 
-func intersect(cubic0: IntersectingCubic, cubic1: IntersectingCubic, depth: UInt) -> [(CGFloat, CGFloat)] {
+private func intersect(cubic0: IntersectingCubic, cubic1: IntersectingCubic, depth: UInt) -> [(CGFloat, CGFloat)] {
     if depth >= 13 {
         return [(cubic0.minT, cubic1.minT)]
     }
@@ -131,7 +131,7 @@ func intersect(cubic0: IntersectingCubic, cubic1: IntersectingCubic, depth: UInt
     return []
 }
 
-func clipOnce(e0: CGFloat, e1: CGFloat, e2: CGFloat, e3: CGFloat) -> CGFloat? {
+private func clipOnce(e0: CGFloat, e1: CGFloat, e2: CGFloat, e3: CGFloat) -> CGFloat? {
     if e0 > 0 || e3 < 0 {
         return nil
     }
@@ -157,7 +157,7 @@ func clipOnce(e0: CGFloat, e1: CGFloat, e2: CGFloat, e3: CGFloat) -> CGFloat? {
     return result
 }
 
-func clip(cubic0: Cubic, cubic1: Cubic) -> (CGFloat, CGFloat)? {
+private func clip(cubic0: Cubic, cubic1: Cubic) -> (CGFloat, CGFloat)? {
     // Bezier Clipping. http://cagd.cs.byu.edu/~557/text/ch7.pdf
     let (l0, l1, l2) = cross(extendPoint(cubic1.0), extendPoint(cubic1.3))
     let c1 = -l0 * cubic1.1.x - l1 * cubic1.1.y

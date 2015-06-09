@@ -26,7 +26,11 @@ func intersectLineAndLine(line0: Line, line1: Line) -> CGFloat? {
     if abs(b * j - d * g) < epsilon {
         return nil
     }
-    return (-a * j + c * j + d * f - d * h) / (b * j - d * g)
+    let t = (-a * j + c * j + d * f - d * h) / (b * j - d * g)
+    if t >= 0 && t < 1 {
+        return t
+    }
+    return nil
 }
 
 func intersectLineAndQuadratic(line: Line, quad: Quadratic) -> [CGFloat] {

@@ -8,16 +8,30 @@
 
 import Cocoa
 import XCTest
+import LoopBlinn
+
+private func lerp(point0: CGPoint, point1: CGPoint, t: CGFloat) -> CGPoint {
+    return CGPointMake(point1.x * t + point0.x * (1 - t), point1.y * t + point0.y * (1 - t))
+}
+
+private typealias Cubic = (CGPoint, CGPoint, CGPoint, CGPoint)
+private func subdivide(cubic: Cubic, t: CGFloat) -> (Cubic, Cubic) {
+    var p01 = lerp(cubic.0, cubic.1, t)
+    var p12 = lerp(cubic.1, cubic.2, t)
+    var p23 = lerp(cubic.2, cubic.3, t)
+    var p012 = lerp(p01, p12, t)
+    var p123 = lerp(p12, p23, t)
+    var p0123 = lerp(p012, p123, t)
+    return ((cubic.0, p01, p012, p0123), (p0123, p123, p23, cubic.3))
+}
 
 class LoopBlinn_Tests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        // Put setup code here. This method is called before the invocation of each test method in the class.
     }
     
     override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
         super.tearDown()
     }
 
@@ -68,7 +82,6 @@ class LoopBlinn_Tests: XCTestCase {
     }
 
     func testSubdivision() {
-    /*
         let trials = 10000
         let upperBound = UInt32(100)
         for i in 0 ..< trials {
@@ -96,7 +109,15 @@ class LoopBlinn_Tests: XCTestCase {
             XCTAssertEqualWithAccuracy(distance(middle1.2, middle2.2), 0, epsilon, "Points need to be the same")
             XCTAssertEqualWithAccuracy(distance(middle1.3, middle2.3), 0, epsilon, "Points need to be the same")
         }
-    */
+    }
+
+    func testSimplePath() {
+        var path = CGPathCreateMutable()
+        CGPathMoveToPoint(path, nil, 0, 0)
+        CGPathAddLineToPoint(path, nil, 100, 0)
+        CGPathAddLineToPoint(path, nil, 50, 50 * sqrt(3))
+        CGPathCloseSubpath(path)
+        XCTAssertEqual(dumpPath(decomposePath(path)), "m (0.0, 0.0) l (100.0, 0.0) l (50.0, 86.6025403784439) l (0.0, 0.0) z", "Decomposed path")
     }
     
 }

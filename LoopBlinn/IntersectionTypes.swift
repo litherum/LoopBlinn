@@ -61,7 +61,7 @@ func equivalentCubic(quad: Quadratic) -> Cubic {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-func sgn(x: CGFloat) -> CGFloat {
+private func sgn(x: CGFloat) -> CGFloat {
     return x > 0 ? 1 : x < 0 ? -1 : 0
 }
 

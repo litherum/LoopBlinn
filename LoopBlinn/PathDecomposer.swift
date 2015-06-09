@@ -10,7 +10,7 @@ import Foundation
 
 // FIXME: Figure out what to do if the same curve appears in the path multiple times
 
-func destination(element: CGPathElement) -> CGPoint {
+private func destination(element: CGPathElement) -> CGPoint {
     switch element.type.value {
     case kCGPathElementMoveToPoint.value:
         return element.points[0]
@@ -27,7 +27,7 @@ func destination(element: CGPathElement) -> CGPoint {
     }
 }
 
-func selfIntersect(cubic: Cubic) -> (CGFloat, CGFloat)? {
+private func selfIntersect(cubic: Cubic) -> (CGFloat, CGFloat)? {
     let a = 3 * (cubic.1.x - cubic.0.x)
     let b = 3 * (cubic.0.x - 2 * cubic.1.x + cubic.2.x)
     let c = 3 * cubic.1.x - cubic.0.x - 3 * cubic.2.x + cubic.3.x
@@ -48,7 +48,7 @@ func selfIntersect(cubic: Cubic) -> (CGFloat, CGFloat)? {
     return (t, s)
 }
 
-func selfIntersect(currentPoint: CGPoint, element: CGPathElement) -> (CGFloat, CGFloat)? {
+private func selfIntersect(currentPoint: CGPoint, element: CGPathElement) -> (CGFloat, CGFloat)? {
     switch element.type.value {
     case kCGPathElementMoveToPoint.value,
     kCGPathElementAddLineToPoint.value,
@@ -63,7 +63,7 @@ func selfIntersect(currentPoint: CGPoint, element: CGPathElement) -> (CGFloat, C
     }
 }
 
-func intersectLine(line: Line, currentPoint: CGPoint, subpathStart: CGPoint, element: CGPathElement) -> [CGFloat] {
+private func intersectLine(line: Line, currentPoint: CGPoint, subpathStart: CGPoint, element: CGPathElement) -> [CGFloat] {
     switch element.type.value {
     case kCGPathElementMoveToPoint.value:
         return []
@@ -87,7 +87,7 @@ func intersectLine(line: Line, currentPoint: CGPoint, subpathStart: CGPoint, ele
     }
 }
 
-func intersectCubic(cubic: Cubic, currentPoint: CGPoint, subpathStart: CGPoint, element: CGPathElement) -> [CGFloat] {
+private func intersectCubic(cubic: Cubic, currentPoint: CGPoint, subpathStart: CGPoint, element: CGPathElement) -> [CGFloat] {
     switch element.type.value {
     case kCGPathElementMoveToPoint.value:
         return []
@@ -105,7 +105,7 @@ func intersectCubic(cubic: Cubic, currentPoint: CGPoint, subpathStart: CGPoint, 
     }
 }
 
-func intersect(currentPoint1: CGPoint, subpathStart1: CGPoint, element1: CGPathElement, currentPoint2: CGPoint, subpathStart2: CGPoint, element2: CGPathElement) -> [CGFloat] {
+private func intersect(currentPoint1: CGPoint, subpathStart1: CGPoint, element1: CGPathElement, currentPoint2: CGPoint, subpathStart2: CGPoint, element2: CGPathElement) -> [CGFloat] {
     switch element1.type.value {
     case kCGPathElementMoveToPoint.value:
         return []
@@ -123,7 +123,7 @@ func intersect(currentPoint1: CGPoint, subpathStart1: CGPoint, element1: CGPathE
     }
 }
 
-func subdivideLineMany(line: Line, ts: [CGFloat]) -> [Line] {
+private func subdivideLineMany(line: Line, ts: [CGFloat]) -> [Line] {
     var result: [Line] = []
     var currentPoint = line.0
     for t in ts + [1] {
@@ -135,7 +135,7 @@ func subdivideLineMany(line: Line, ts: [CGFloat]) -> [Line] {
     return result
 }
 
-func subdivideCubicMany(cubic: Cubic, ts: [CGFloat]) -> [Cubic] {
+private func subdivideCubicMany(cubic: Cubic, ts: [CGFloat]) -> [Cubic] {
     var result: [Cubic] = []
     var currentT = CGFloat(0)
     for t in ts + [1] {
@@ -145,73 +145,85 @@ func subdivideCubicMany(cubic: Cubic, ts: [CGFloat]) -> [Cubic] {
     return result
 }
 
-func decomposePath(path: CGPathRef) -> CGPathRef {
-    var result = CGPathCreateMutable()
-    var element1Index = 0
-    var currentPoint1 = CGPointMake(0, 0)
-    var subpathStart1 = CGPointMake(0, 0)
-    iterateCGPath(path, {element1 in
-        switch element1.type.value {
+private func processTs(ts: [CGFloat]) -> [CGFloat] {
+    let s = sorted(ts).filter({$0 > 0 && $0 < 1})
+    if s.count < 2 {
+        return s
+    }
+    var previous = s[0]
+    var result = [previous]
+    for t in s[1 ..< s.count] {
+        if previous != t {
+            result.append(t)
+        }
+        previous = t
+    }
+    return result
+}
+
+private func convenientIterateCGPath(path: CGPathRef, c: (CGPathElement, CGPoint, CGPoint, Int) -> ()) {
+    var elementIndex = 0
+    var currentPoint = CGPointMake(0, 0)
+    var subpathStart = CGPointMake(0, 0)
+    iterateCGPath(path, {element in
+        switch element.type.value {
         case kCGPathElementMoveToPoint.value:
-            subpathStart1 = element1.points[0]
+            subpathStart = element.points[0]
         default:
             break
         }
 
+        c(element, currentPoint, subpathStart, elementIndex)
+
+        currentPoint = destination(element)
+        ++elementIndex
+    })
+}
+
+private func updatePath(path: CGMutablePathRef, ts: [CGFloat], currentPoint: CGPoint, subpathStart: CGPoint, element: CGPathElement) {
+    switch element.type.value {
+    case kCGPathElementMoveToPoint.value:
+        CGPathMoveToPoint(path, nil, element.points[0].x, element.points[0].y)
+    case kCGPathElementAddLineToPoint.value:
+        for line in subdivideLineMany(Line(currentPoint, element.points[0]), ts) {
+            CGPathAddLineToPoint(path, nil, line.1.x, line.1.y)
+        }
+    case kCGPathElementAddQuadCurveToPoint.value:
+        for cubic in subdivideCubicMany(equivalentCubic(Quadratic(currentPoint, element.points[0], element.points[1])), ts) {
+            CGPathAddCurveToPoint(path, nil, cubic.1.x, cubic.1.y, cubic.2.x, cubic.2.y, cubic.3.x, cubic.3.y)
+        }
+    case kCGPathElementAddCurveToPoint.value:
+        for cubic in subdivideCubicMany(Cubic(currentPoint, element.points[0], element.points[1], element.points[2]), ts) {
+            CGPathAddCurveToPoint(path, nil, cubic.1.x, cubic.1.y, cubic.2.x, cubic.2.y, cubic.3.x, cubic.3.y)
+        }
+    case kCGPathElementCloseSubpath.value:
+        for line in subdivideLineMany(Line(currentPoint, subpathStart), ts) {
+            CGPathAddLineToPoint(path, nil, line.1.x, line.1.y)
+        }
+        CGPathCloseSubpath(path)
+    default:
+        assert(false, "Unknown path type")
+    }
+}
+
+public func decomposePath(path: CGPathRef) -> CGPathRef {
+    var result = CGPathCreateMutable()
+    convenientIterateCGPath(path, { (element1, currentPoint1, subpathStart1, element1Index) in
         var ts: [CGFloat] = []
         if let (t1, t2) = selfIntersect(currentPoint1, element1) {
             ts.append(t1)
             ts.append(t2)
         }
 
-        var element2Index = 0
-        var currentPoint2 = CGPointMake(0, 0)
-        var subpathStart2 = CGPointMake(0, 0)
-        iterateCGPath(path, {element2 in
-            switch element2.type.value {
-            case kCGPathElementMoveToPoint.value:
-                subpathStart2 = element2.points[0]
-            default:
-                break
-            }
-
+        convenientIterateCGPath(path, {(element2, currentPoint2, subpathStart2, element2Index) in
             if element2Index > element1Index {
                 for t in intersect(currentPoint1, subpathStart1, element1, currentPoint2, subpathStart2, element2) {
                     ts.append(t)
                 }
             }
-            currentPoint2 = destination(element2)
-            ++element2Index
         })
 
-        sort(&ts)
-
-        switch element1.type.value {
-        case kCGPathElementMoveToPoint.value:
-            CGPathMoveToPoint(result, nil, element1.points[0].x, element1.points[0].y)
-        case kCGPathElementAddLineToPoint.value:
-            for line in subdivideLineMany(Line(currentPoint1, element1.points[0]), ts) {
-                CGPathAddLineToPoint(result, nil, line.1.x, line.1.y)
-            }
-        case kCGPathElementAddQuadCurveToPoint.value:
-            for cubic in subdivideCubicMany(equivalentCubic(Quadratic(currentPoint1, element1.points[0], element1.points[1])), ts) {
-                CGPathAddCurveToPoint(result, nil, cubic.1.x, cubic.1.y, cubic.2.x, cubic.2.y, cubic.3.x, cubic.3.y)
-            }
-        case kCGPathElementAddCurveToPoint.value:
-            for cubic in subdivideCubicMany(Cubic(currentPoint1, element1.points[0], element1.points[1], element1.points[2]), ts) {
-                CGPathAddCurveToPoint(result, nil, cubic.1.x, cubic.1.y, cubic.2.x, cubic.2.y, cubic.3.x, cubic.3.y)
-            }
-        case kCGPathElementCloseSubpath.value:
-            for line in subdivideLineMany(Line(currentPoint1, subpathStart1), ts) {
-                CGPathAddLineToPoint(result, nil, line.1.x, line.1.y)
-            }
-            CGPathCloseSubpath(result)
-        default:
-            assert(false, "Unknown path type")
-        }
-
-        currentPoint1 = destination(element1)
-        ++element1Index
+        updatePath(result, processTs(ts), currentPoint1, subpathStart1, element1)
     })
     return result;
 }

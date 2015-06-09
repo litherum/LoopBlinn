@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1C4ACA411A83D757007C9347 /* Triangulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C4ACA401A83D757007C9347 /* Triangulator.cpp */; };
-		1C4ACA431A83D8FF007C9347 /* libCGAL.10.0.4.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C4ACA421A83D8FF007C9347 /* libCGAL.10.0.4.dylib */; };
+		1C4ACA431A83D8FF007C9347 /* libCGAL.11.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C4ACA421A83D8FF007C9347 /* libCGAL.11.0.0.dylib */; };
 		1C4ACA451A83DBD4007C9347 /* libgmp.10.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C4ACA441A83DBD4007C9347 /* libgmp.10.dylib */; };
 		1CCAA7FD1A88376A00135A40 /* PathWinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CCAA7FB1A88376A00135A40 /* PathWinder.cpp */; };
 		C2327B7F1B251C19001FFCA5 /* LineIntersections.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2327B7E1B251C19001FFCA5 /* LineIntersections.swift */; };
@@ -39,7 +39,7 @@
 /* Begin PBXFileReference section */
 		1C4ACA3F1A83D745007C9347 /* Triangulator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Triangulator.h; sourceTree = "<group>"; };
 		1C4ACA401A83D757007C9347 /* Triangulator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Triangulator.cpp; sourceTree = "<group>"; };
-		1C4ACA421A83D8FF007C9347 /* libCGAL.10.0.4.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL.10.0.4.dylib; path = ../../../../../../opt/local/lib/libCGAL.10.0.4.dylib; sourceTree = "<group>"; };
+		1C4ACA421A83D8FF007C9347 /* libCGAL.11.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL.11.0.0.dylib; path = ../../../../opt/local/lib/libCGAL.11.0.0.dylib; sourceTree = "<group>"; };
 		1C4ACA441A83DBD4007C9347 /* libgmp.10.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgmp.10.dylib; path = ../../../../../../opt/local/lib/libgmp.10.dylib; sourceTree = "<group>"; };
 		1C4ACA471A83FB28007C9347 /* CFPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CFPtr.h; sourceTree = "<group>"; };
 		1CCAA7FB1A88376A00135A40 /* PathWinder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PathWinder.cpp; sourceTree = "<group>"; };
@@ -73,7 +73,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1C4ACA451A83DBD4007C9347 /* libgmp.10.dylib in Frameworks */,
-				1C4ACA431A83D8FF007C9347 /* libCGAL.10.0.4.dylib in Frameworks */,
+				1C4ACA431A83D8FF007C9347 /* libCGAL.11.0.0.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -91,7 +91,7 @@
 			isa = PBXGroup;
 			children = (
 				1C4ACA441A83DBD4007C9347 /* libgmp.10.dylib */,
-				1C4ACA421A83D8FF007C9347 /* libCGAL.10.0.4.dylib */,
+				1C4ACA421A83D8FF007C9347 /* libCGAL.11.0.0.dylib */,
 				C28A55AC1A831A960034B66E /* LoopBlinn */,
 				C2F745B51B1A7AD900812AE5 /* LoopBlinn Tests */,
 				C28A55AB1A831A960034B66E /* Products */,

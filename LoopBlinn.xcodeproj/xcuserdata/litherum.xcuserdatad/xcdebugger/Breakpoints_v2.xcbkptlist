@@ -12,5 +12,84 @@
             breakpointStackSelectionBehavior = "1">
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "LoopBlinn Tests/LoopBlinn_Tests.swift"
+            timestampString = "455528312.41973"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "120"
+            endingLineNumber = "120"
+            landmarkName = "testSimplePath()"
+            landmarkType = "5">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "LoopBlinn_Tests.LoopBlinn_Tests.testSimplePath (LoopBlinn_Tests.LoopBlinn_Tests)() -&gt; ()"
+                  moduleName = "LoopBlinn Tests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/litherum/src/LoopBlinn/LoopBlinn%20Tests/LoopBlinn_Tests.swift"
+                  timestampString = "455528364.468879"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "120"
+                  endingLineNumber = "120"
+                  offsetFromSymbolStart = "260">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "LoopBlinn_Tests.LoopBlinn_Tests.(testSimplePath (LoopBlinn_Tests.LoopBlinn_Tests) -&gt; () -&gt; ()).(implicit closure #1)"
+                  moduleName = "LoopBlinn Tests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/litherum/src/LoopBlinn/LoopBlinn%20Tests/LoopBlinn_Tests.swift"
+                  timestampString = "455528364.47129"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "120"
+                  endingLineNumber = "120"
+                  offsetFromSymbolStart = "16">
+               </Location>
+               <Location
+                  shouldBeEnabled = "No"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "LoopBlinn_Tests.LoopBlinn_Tests.(testSimplePath (LoopBlinn_Tests.LoopBlinn_Tests) -&gt; () -&gt; ()).(implicit closure #2)"
+                  moduleName = "LoopBlinn Tests"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/litherum/src/LoopBlinn/LoopBlinn%20Tests/LoopBlinn_Tests.swift"
+                  timestampString = "455528364.471723"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "120"
+                  endingLineNumber = "120"
+                  offsetFromSymbolStart = "4">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "No"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "LoopBlinn/PathDecomposer.swift"
+            timestampString = "455530552.940043"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "212"
+            endingLineNumber = "212"
+            landmarkName = "decomposePath(_:)"
+            landmarkType = "7">
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>
