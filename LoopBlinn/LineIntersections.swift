@@ -21,9 +21,10 @@ func intersectLineAndLine(line0: Line, line1: Line) -> CGFloat? {
     let g = delta0.height
     let h = line1.0.y
     let j = delta1.height
-    
+
     let epsilon = CGFloat(0.001)
     if abs(b * j - d * g) < epsilon {
+        // FIXME: The lines are parallel. If the lines are colinear, return the bounds of line1 in line0
         return nil
     }
     let t = (-a * j + c * j + d * f - d * h) / (b * j - d * g)

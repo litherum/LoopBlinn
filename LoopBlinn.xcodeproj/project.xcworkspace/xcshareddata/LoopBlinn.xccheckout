@@ -11,7 +11,7 @@
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
 		<key>B9F09A27DC0388A859A8A9DB930DD8C298C95FD7</key>
-		<string>github.com:litherum/LoopBlinn.git</string>
+		<string>https://github.com/litherum/LoopBlinn.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>LoopBlinn.xcodeproj</string>
@@ -21,7 +21,7 @@
 		<string>../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>github.com:litherum/LoopBlinn.git</string>
+	<string>https://github.com/litherum/LoopBlinn.git</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>

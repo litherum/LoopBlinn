@@ -8,12 +8,12 @@
 
 /* Begin PBXBuildFile section */
 		1C4ACA411A83D757007C9347 /* Triangulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C4ACA401A83D757007C9347 /* Triangulator.cpp */; };
-		1C4ACA431A83D8FF007C9347 /* libCGAL.11.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C4ACA421A83D8FF007C9347 /* libCGAL.11.0.0.dylib */; };
 		1C4ACA451A83DBD4007C9347 /* libgmp.10.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C4ACA441A83DBD4007C9347 /* libgmp.10.dylib */; };
 		1CCAA7FD1A88376A00135A40 /* PathWinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CCAA7FB1A88376A00135A40 /* PathWinder.cpp */; };
 		C2327B7F1B251C19001FFCA5 /* LineIntersections.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2327B7E1B251C19001FFCA5 /* LineIntersections.swift */; };
 		C2327B831B251CF1001FFCA5 /* IntersectionTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2327B821B251CF1001FFCA5 /* IntersectionTypes.swift */; };
 		C2327B851B251F0B001FFCA5 /* CubicIntersections.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2327B841B251F0B001FFCA5 /* CubicIntersections.swift */; };
+		C24B92D11B2A8B98006E9A98 /* libCGAL.11.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C4ACA421A83D8FF007C9347 /* libCGAL.11.0.0.dylib */; };
 		C28A55B11A831A960034B66E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C28A55B01A831A960034B66E /* AppDelegate.m */; };
 		C28A55B31A831A960034B66E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C28A55B21A831A960034B66E /* main.m */; };
 		C28A55B51A831A960034B66E /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C28A55B41A831A960034B66E /* Images.xcassets */; };
@@ -73,7 +73,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				1C4ACA451A83DBD4007C9347 /* libgmp.10.dylib in Frameworks */,
-				1C4ACA431A83D8FF007C9347 /* libCGAL.11.0.0.dylib in Frameworks */,
+				C24B92D11B2A8B98006E9A98 /* libCGAL.11.0.0.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

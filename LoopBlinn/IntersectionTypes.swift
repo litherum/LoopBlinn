@@ -11,9 +11,9 @@ import Foundation
 typealias Line = (CGPoint, CGPoint)
 typealias Quadratic = (CGPoint, CGPoint, CGPoint)
 typealias Cubic = (CGPoint, CGPoint, CGPoint, CGPoint)
-typealias Vector3 = (CGFloat, CGFloat, CGFloat)
+public typealias Vector3 = (CGFloat, CGFloat, CGFloat)
 
-func extendPoint(v: CGPoint) -> Vector3 {
+public func extendPoint(v: CGPoint) -> Vector3 {
     return (v.x, v.y, 1)
 }
 
@@ -25,19 +25,19 @@ func + (left: CGSize, right: CGSize) -> CGSize {
     return CGSizeMake(left.width + right.width, left.height + right.height)
 }
 
-func - (left: CGPoint, right: CGPoint) -> CGSize {
+public func - (left: CGPoint, right: CGPoint) -> CGSize {
     return CGSizeMake(left.x - right.x, left.y - right.y)
 }
 
-func - (left: CGSize, right: CGSize) -> CGSize {
+public func - (left: CGSize, right: CGSize) -> CGSize {
     return CGSizeMake(left.width - right.width, left.height - right.height)
 }
 
-func * (left: CGFloat, right: CGSize) -> CGSize {
+public func * (left: CGFloat, right: CGSize) -> CGSize {
     return CGSizeMake(left * right.width, left * right.height)
 }
 
-func dot(v1: CGSize, v2: CGSize) -> CGFloat {
+public func dot(v1: CGSize, v2: CGSize) -> CGFloat {
     return v1.width * v2.width + v1.height * v2.height
 }
 
@@ -49,7 +49,7 @@ func cross(u: Vector3, v: Vector3) -> Vector3 {
     return (u.1 * v.2 - u.2 * v.1, u.2 * v.0 - u.0 * v.2, u.0 * v.1 - u.1 * v.0)
 }
 
-func magnitude(v: CGSize) -> CGFloat {
+public func magnitude(v: CGSize) -> CGFloat {
     return sqrt(dot(v, v))
 }
 

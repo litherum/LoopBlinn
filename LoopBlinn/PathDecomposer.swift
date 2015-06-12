@@ -23,7 +23,8 @@ private func destination(element: CGPathElement) -> CGPoint {
     case kCGPathElementCloseSubpath.value:
         return element.points[0]
     default:
-        assert(false, "Unknown path type")
+        assertionFailure("Unknown path type")
+        return element.points[0]
     }
 }
 
@@ -58,7 +59,7 @@ private func selfIntersect(currentPoint: CGPoint, element: CGPathElement) -> (CG
     case kCGPathElementAddCurveToPoint.value:
         return selfIntersect(Cubic(currentPoint, element.points[0], element.points[1], element.points[2]))
     default:
-        assert(false, "Unknown path type")
+        assertionFailure("Unknown path type")
         return nil
     }
 }
@@ -82,7 +83,7 @@ private func intersectLine(line: Line, currentPoint: CGPoint, subpathStart: CGPo
         }
         return []
     default:
-        assert(false, "Unknown path type")
+        assertionFailure("Unknown path type")
         return []
     }
 }
@@ -100,7 +101,7 @@ private func intersectCubic(cubic: Cubic, currentPoint: CGPoint, subpathStart: C
     case kCGPathElementCloseSubpath.value:
         return intersectCubicAndLine(cubic, Line(currentPoint, subpathStart))
     default:
-        assert(false, "Unknown path type")
+        assertionFailure("Unknown path type")
         return []
     }
 }
@@ -118,7 +119,7 @@ private func intersect(currentPoint1: CGPoint, subpathStart1: CGPoint, element1:
     case kCGPathElementCloseSubpath.value:
         return intersectLine(Line(currentPoint1, subpathStart1), currentPoint2, subpathStart2, element2)
     default:
-        assert(false, "Unknown path type")
+        assertionFailure("Unknown path type")
         return []
     }
 }
@@ -161,7 +162,7 @@ private func processTs(ts: [CGFloat]) -> [CGFloat] {
     return result
 }
 
-private func convenientIterateCGPath(path: CGPathRef, c: (CGPathElement, CGPoint, CGPoint, Int) -> ()) {
+public func convenientIterateCGPath(path: CGPathRef, c: (CGPathElement, CGPoint, CGPoint, Int) -> ()) {
     var elementIndex = 0
     var currentPoint = CGPointMake(0, 0)
     var subpathStart = CGPointMake(0, 0)
@@ -202,7 +203,7 @@ private func updatePath(path: CGMutablePathRef, ts: [CGFloat], currentPoint: CGP
         }
         CGPathCloseSubpath(path)
     default:
-        assert(false, "Unknown path type")
+        assertionFailure("Unknown path type")
     }
 }
 

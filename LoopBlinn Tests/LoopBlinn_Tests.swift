@@ -10,6 +10,34 @@ import Cocoa
 import XCTest
 import LoopBlinn
 
+func dumpPath(path: CGPathRef) -> String {
+    var result = ""
+    iterateCGPath(path) {element in
+        switch element.type.value {
+        case kCGPathElementMoveToPoint.value:
+            result = result + "m \(element.points[0]) "
+        case kCGPathElementAddLineToPoint.value:
+            result = result + "l \(element.points[0]) "
+        case kCGPathElementAddQuadCurveToPoint.value:
+            result = result + "q \(element.points[0]) \(element.points[1])"
+        case kCGPathElementAddCurveToPoint.value:
+            result = result + "c \(element.points[0]) \(element.points[1]) \(element.points[2]) "
+        case kCGPathElementCloseSubpath.value:
+            result = result + "z "
+        default:
+            XCTFail("Unknown path element type")
+        }
+    }
+    result = result.substringToIndex(result.endIndex.predecessor())
+    return result
+}
+
+func distance(point0: CGPoint, point1: CGPoint) -> CGFloat {
+    let dx = point1.x - point0.x
+    let dy = point1.y - point1.y
+    return sqrt(dx * dx + dy * dy)
+}
+
 private func lerp(point0: CGPoint, point1: CGPoint, t: CGFloat) -> CGPoint {
     return CGPointMake(point1.x * t + point0.x * (1 - t), point1.y * t + point0.y * (1 - t))
 }
@@ -25,6 +53,41 @@ private func subdivide(cubic: Cubic, t: CGFloat) -> (Cubic, Cubic) {
     return ((cubic.0, p01, p012, p0123), (p0123, p123, p23, cubic.3))
 }
 
+func isPointOnLine(endpoint1: CGPoint, endpoint2: CGPoint, point: CGPoint) -> Bool {
+    let u = endpoint2 - endpoint1
+    let v = point - endpoint1
+    let frac = dot(u, v) / dot(u, u)
+    if frac < 0 || frac > 1 {
+        return false
+    }
+    let epsilon = CGFloat(1)
+    return magnitude(v - frac * u) < epsilon
+}
+
+func parallel(p0: CGPoint, p1: CGPoint, p2: CGPoint, p3: CGPoint) -> Bool {
+    let delta0 = p1 - p0
+    let delta1 = p3 - p2
+    let b = delta0.width
+    let d = delta1.width
+    let g = delta0.height
+    let j = delta1.height
+    
+    let epsilon = CGFloat(0.001)
+    return abs(b * j - d * g) < epsilon
+}
+
+func parallelQuad(p0: CGPoint, p1: CGPoint, p2: CGPoint, p3: CGPoint) -> Bool {
+    let edges = [(p0, p1), (p1, p2), (p2, p3), (p3, p0)]
+    for i in 0 ..< edges.count {
+        for j in i + 0 ..< edges.count {
+            if parallel(edges[i].0, edges[i].1, edges[j].0, edges[j].1) {
+                return true
+            }
+        }
+    }
+    return false
+}
+
 class LoopBlinn_Tests: XCTestCase {
     
     override func setUp() {
@@ -33,28 +96,6 @@ class LoopBlinn_Tests: XCTestCase {
     
     override func tearDown() {
         super.tearDown()
-    }
-
-    func dumpPath(path: CGPathRef) -> String {
-        var result = ""
-        iterateCGPath(path) {element in
-            switch element.type.value {
-            case kCGPathElementMoveToPoint.value:
-                result = result + "m \(element.points[0]) "
-            case kCGPathElementAddLineToPoint.value:
-                result = result + "l \(element.points[0]) "
-            case kCGPathElementAddQuadCurveToPoint.value:
-                result = result + "q \(element.points[0]) \(element.points[1])"
-            case kCGPathElementAddCurveToPoint.value:
-                result = result + "c \(element.points[0]) \(element.points[1]) \(element.points[2]) "
-            case kCGPathElementCloseSubpath.value:
-                result = result + "z "
-            default:
-                XCTFail("Unknown path element type")
-            }
-        }
-        result = result.substringToIndex(result.endIndex.predecessor())
-        return result
     }
     
     func testPath() {
@@ -75,14 +116,8 @@ class LoopBlinn_Tests: XCTestCase {
         XCTAssertEqual(dumpPath(path), "m (100.0, 200.0) l (300.0, 200.0) l (200.0, 300.0) l (200.0, 100.0) z")
     }
 
-    func distance(point0: CGPoint, _ point1: CGPoint) -> CGFloat {
-        let dx = point1.x - point0.x
-        let dy = point1.y - point1.y
-        return sqrt(dx * dx + dy * dy)
-    }
-
     func testSubdivision() {
-        let trials = 10000
+        let trials = 100000
         let upperBound = UInt32(100)
         for i in 0 ..< trials {
             let p1 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
@@ -126,6 +161,44 @@ class LoopBlinn_Tests: XCTestCase {
         CGPathAddLineToPoint(path, nil, 0, 50)
         CGPathCloseSubpath(path)
         XCTAssertEqual(dumpPath(decomposePath(path)), "m (50.0, 0.0) l (50.0, 50.0) l (50.0, 100.0) l (125.0, 50.0) l (50.0, 50.0) l (0.0, 50.0) l (50.0, 0.0) z", "Decomposed path")
+    }
+
+    func testNonParallelLineIntersections() {
+        let trials = 1000000
+        let upperBound = UInt32(100)
+        for _ in 0 ..< trials {
+            var path = CGPathCreateMutable()
+            let point1 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
+            let point2 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
+            let point3 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
+            let point4 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
+            if parallelQuad(point1, point2, point3, point4) {
+                continue
+            }
+            CGPathMoveToPoint(path, nil, point1.x, point1.y)
+            CGPathAddLineToPoint(path, nil, point2.x, point2.y)
+            CGPathAddLineToPoint(path, nil, point3.x, point3.y)
+            CGPathAddLineToPoint(path, nil, point4.x, point4.y)
+            CGPathCloseSubpath(path)
+            let decomposed = decomposePath(path)
+            var hasIntersection = false
+            var numComponents = 0
+            convenientIterateCGPath(decomposePath(path)) {(pathElement, currentPoint, subpathStart, elementIndex) in
+                switch pathElement.type.value {
+                case kCGPathElementAddLineToPoint.value:
+                    let intersection = pathElement.points[0]
+                    if intersection != point1 && intersection != point2 && intersection != point3 && intersection != point4 {
+                        hasIntersection = true
+                        XCTAssert(isPointOnLine(point1, point2, intersection) || isPointOnLine(point2, point3, intersection) || isPointOnLine(point3, point4, intersection) || isPointOnLine(point4, point1, intersection), "intersection point does not lie on line")
+                    }
+                default:
+                    break
+                }
+                ++numComponents
+            }
+            XCTAssert(hasIntersection || numComponents == 6)
+            XCTAssert(!hasIntersection || numComponents == 8)
+        }
     }
 
     // FIXME: Test the same element appearing twice in the same curve. Could even be masquerading as a cubic when the original is a quadratic.
