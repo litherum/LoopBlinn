@@ -106,7 +106,8 @@ func bezierCoeffs(point0: CGFloat, point1: CGFloat, point2: CGFloat, point3: CGF
 }
 
 func generalIntersectCubicAndLine(cubic: Cubic, line: Line) -> [(CGFloat, CGFloat)] {
-    return generalIntersectCubicAndInfiniteLine(cubic, line).filter({$0.1 >= 0 && $0.1 < 1})
+    let epsilon = CGFloat(0.0001)
+    return generalIntersectCubicAndInfiniteLine(cubic, line).filter({$0.1 >= epsilon && $0.1 < 1 - epsilon})
 }
 
 func generalIntersectCubicAndInfiniteLine(cubic: Cubic, line: Line) -> [(CGFloat, CGFloat)] {

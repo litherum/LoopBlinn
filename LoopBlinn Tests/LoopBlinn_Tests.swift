@@ -117,7 +117,7 @@ class LoopBlinn_Tests: XCTestCase {
     }
 
     func testSubdivision() {
-        let trials = 100000
+        let trials = 10000
         let upperBound = UInt32(100)
         for i in 0 ..< trials {
             let p1 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
@@ -162,12 +162,11 @@ class LoopBlinn_Tests: XCTestCase {
         CGPathCloseSubpath(path)
         XCTAssertEqual(dumpPath(decomposePath(path)), "m (50.0, 0.0) l (50.0, 50.0) l (50.0, 100.0) l (125.0, 50.0) l (50.0, 50.0) l (0.0, 50.0) l (50.0, 0.0) z", "Decomposed path")
     }
-
+    
     func testNonParallelLineIntersections() {
-        let trials = 1000000
+        let trials = 10000
         let upperBound = UInt32(100)
         for _ in 0 ..< trials {
-            var path = CGPathCreateMutable()
             let point1 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
             let point2 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
             let point3 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
@@ -175,12 +174,12 @@ class LoopBlinn_Tests: XCTestCase {
             if parallelQuad(point1, point2, point3, point4) {
                 continue
             }
+            var path = CGPathCreateMutable()
             CGPathMoveToPoint(path, nil, point1.x, point1.y)
             CGPathAddLineToPoint(path, nil, point2.x, point2.y)
             CGPathAddLineToPoint(path, nil, point3.x, point3.y)
             CGPathAddLineToPoint(path, nil, point4.x, point4.y)
             CGPathCloseSubpath(path)
-            let decomposed = decomposePath(path)
             var hasIntersection = false
             var numComponents = 0
             convenientIterateCGPath(decomposePath(path)) {(pathElement, currentPoint, subpathStart, elementIndex) in
@@ -198,6 +197,38 @@ class LoopBlinn_Tests: XCTestCase {
             }
             XCTAssert(hasIntersection || numComponents == 6)
             XCTAssert(!hasIntersection || numComponents == 8)
+        }
+    }
+    
+    func testCubicLineIntersections() {
+        let trials = 10000
+        let upperBound = UInt32(100)
+        for _ in 0 ..< trials {
+            let point1 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
+            let point2 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
+            let point3 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
+            let point4 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
+            var path = CGPathCreateMutable()
+            CGPathMoveToPoint(path, nil, point1.x, point1.y)
+            CGPathAddCurveToPoint(path, nil, point2.x, point2.y, point3.x, point3.y, point4.x, point4.y)
+            CGPathCloseSubpath(path)
+            var hasIntersection = false
+            var numComponents = 0
+            convenientIterateCGPath(decomposePath(path)) {(pathElement, currentPoint, subpathStart, elementIndex) in
+                switch pathElement.type.value {
+                case kCGPathElementAddLineToPoint.value:
+                    let intersection = pathElement.points[0]
+                    if intersection != point1 && intersection != point2 && intersection != point3 && intersection != point4 {
+                        hasIntersection = true
+                        XCTAssert(isPointOnLine(point1, point4, intersection), "intersection point does not lie on line")
+                    }
+                default:
+                    break
+                }
+                ++numComponents
+            }
+            XCTAssert(hasIntersection || numComponents == 4 || numComponents == 6 || numComponents == 5)
+            XCTAssert(!hasIntersection || numComponents == 6 || numComponents == 8)
         }
     }
 
