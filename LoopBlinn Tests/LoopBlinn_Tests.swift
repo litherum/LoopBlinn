@@ -10,7 +10,7 @@ import Cocoa
 import XCTest
 import LoopBlinn
 
-func dumpPath(path: CGPathRef) -> String {
+private func dumpPath(path: CGPathRef) -> String {
     var result = ""
     iterateCGPath(path) {element in
         switch element.type.value {
@@ -32,7 +32,7 @@ func dumpPath(path: CGPathRef) -> String {
     return result
 }
 
-func distance(point0: CGPoint, point1: CGPoint) -> CGFloat {
+private func distance(point0: CGPoint, point1: CGPoint) -> CGFloat {
     let dx = point1.x - point0.x
     let dy = point1.y - point1.y
     return sqrt(dx * dx + dy * dy)
@@ -53,7 +53,18 @@ private func subdivide(cubic: Cubic, t: CGFloat) -> (Cubic, Cubic) {
     return ((cubic.0, p01, p012, p0123), (p0123, p123, p23, cubic.3))
 }
 
-func isPointOnLine(endpoint1: CGPoint, endpoint2: CGPoint, point: CGPoint) -> Bool {
+private func isPointOnCurve(cubic: Cubic, point: CGPoint) -> Bool {
+    let stops = 200
+    let epsilon = CGFloat(1)
+    for i in 0 ... stops {
+        if distance(point, subdivide(cubic, CGFloat(i) / CGFloat(stops)).0.3) < epsilon {
+            return true
+        }
+    }
+    return false
+}
+
+private func isPointOnLine(endpoint1: CGPoint, endpoint2: CGPoint, point: CGPoint) -> Bool {
     let u = endpoint2 - endpoint1
     let v = point - endpoint1
     let frac = dot(u, v) / dot(u, u)
@@ -64,7 +75,7 @@ func isPointOnLine(endpoint1: CGPoint, endpoint2: CGPoint, point: CGPoint) -> Bo
     return magnitude(v - frac * u) < epsilon
 }
 
-func parallel(p0: CGPoint, p1: CGPoint, p2: CGPoint, p3: CGPoint) -> Bool {
+private func parallel(p0: CGPoint, p1: CGPoint, p2: CGPoint, p3: CGPoint) -> Bool {
     let delta0 = p1 - p0
     let delta1 = p3 - p2
     let b = delta0.width
@@ -76,7 +87,7 @@ func parallel(p0: CGPoint, p1: CGPoint, p2: CGPoint, p3: CGPoint) -> Bool {
     return abs(b * j - d * g) < epsilon
 }
 
-func parallelQuad(p0: CGPoint, p1: CGPoint, p2: CGPoint, p3: CGPoint) -> Bool {
+private func parallelQuad(p0: CGPoint, p1: CGPoint, p2: CGPoint, p3: CGPoint) -> Bool {
     let edges = [(p0, p1), (p1, p2), (p2, p3), (p3, p0)]
     for i in 0 ..< edges.count {
         for j in i + 0 ..< edges.count {
@@ -221,6 +232,12 @@ class LoopBlinn_Tests: XCTestCase {
                     if intersection != point1 && intersection != point2 && intersection != point3 && intersection != point4 {
                         hasIntersection = true
                         XCTAssert(isPointOnLine(point1, point4, intersection), "intersection point does not lie on line")
+                    }
+                case kCGPathElementAddCurveToPoint.value:
+                    let intersection = pathElement.points[2]
+                    if intersection != point1 && intersection != point2 && intersection != point3 && intersection != point4 {
+                        hasIntersection = true
+                        XCTAssert(isPointOnLine(point1, point4, intersection) || isPointOnCurve(Cubic(point1, point2, point3, point4), intersection), "intersection point does not lie on line nor curve")
                     }
                 default:
                     break
