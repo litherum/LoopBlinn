@@ -52,6 +52,30 @@ private func interpolatePoint(t: CGFloat, cubic: Cubic) -> CGPoint {
     return CGPointZero + b0 * size0 + b1 * size1 + b2 * size2 + b3 * size3
 }
 
+private func tForPointOnCurve(cubic: Cubic, point: CGPoint) -> [CGFloat] {
+    var result = [CGFloat]()
+
+    let bx = bezierCoeffs(cubic.0.x, cubic.1.x, cubic.2.x, cubic.3.x)
+    let by = bezierCoeffs(cubic.0.y, cubic.1.y, cubic.2.y, cubic.3.y)
+    
+    for tx in findZeroes(bx.0, bx.1, bx.2, bx.3 - point.x) {
+        let xcandidate = interpolatePoint(tx, cubic)
+        for ty in findZeroes(by.0, by.1, by.2, by.3 - point.y) {
+            let ycandidate = interpolatePoint(ty, cubic)
+            let tEpsilon = CGFloat(0.001)
+            let dEpsilon = CGFloat(2)
+            if abs(tx - ty) < tEpsilon || magnitude(xcandidate - ycandidate) < dEpsilon {
+                let average = (tx + ty) / 2
+                if average < 0 || average >= 1 {
+                    continue
+                }
+                result.append(average)
+            }
+        }
+    }
+    return result
+}
+
 private func lineApproximation(cubic0: Cubic, cubic1: Cubic) -> [(CGFloat, CGFloat)]? {
     var approximatingLine = cross(extendPoint(cubic1.0), extendPoint(cubic1.3))
     var distance1 = abs(dot(approximatingLine, extendPoint(cubic1.1)))
@@ -61,27 +85,15 @@ private func lineApproximation(cubic0: Cubic, cubic1: Cubic) -> [(CGFloat, CGFlo
         var result: [(CGFloat, CGFloat)] = []
         for (s, t) in generalIntersectCubicAndInfiniteLine(cubic0, Line(cubic1.0, cubic1.3)) {
             let intersection = interpolatePoint(s, cubic0)
-
-            let bx = bezierCoeffs(cubic1.0.x, cubic1.1.x, cubic1.2.x, cubic1.3.x)
-            let by = bezierCoeffs(cubic1.0.y, cubic1.1.y, cubic1.2.y, cubic1.3.y)
-            
-            for tx in findZeroes(bx.0, bx.1, bx.2, bx.3 - intersection.x) {
-                for ty in findZeroes(by.0, by.1, by.2, by.3 - intersection.y) {
-                    let epsilon = CGFloat(0.001)
-                    if abs(tx - ty) < epsilon {
-                        let average = (tx + ty) / 2
-                        if average < 0 || average >= 1 {
-                            continue
-                        }
-                        let tuple = (s, average)
-                        result.append(tuple)
-                    }
-                }
-            }
+            result.extend(tForPointOnCurve(cubic1, intersection).map({(s, $0)}))
         }
         return result
     }
     return nil
+}
+
+func localToGlobalT(t: CGFloat, minT: CGFloat, maxT: CGFloat) -> CGFloat {
+    return t * (maxT - minT) + minT
 }
 
 private struct IntersectingCubic {
@@ -90,26 +102,43 @@ private struct IntersectingCubic {
     var maxT: CGFloat
 }
 
+private func trivialIntersection(cubic0: IntersectingCubic, t: CGFloat, cubic1: IntersectingCubic) -> [(CGFloat, CGFloat)] {
+    let intersection = interpolatePoint(t, cubic0.cubic)
+    let globalT = localToGlobalT(t, cubic0.minT, cubic0.maxT)
+    return tForPointOnCurve(cubic1.cubic, intersection).map({(globalT, localToGlobalT($0, cubic1.minT, cubic1.maxT))})
+}
+
 private func intersect(cubic0: IntersectingCubic, cubic1: IntersectingCubic, depth: UInt) -> [(CGFloat, CGFloat)] {
     if depth >= 13 {
         return [(cubic0.minT, cubic1.minT)]
     }
+    
+    let tEpsilon = CGFloat(0.001)
+    if abs(cubic0.maxT - cubic0.minT) < tEpsilon {
+        return trivialIntersection(cubic0, 0.5, cubic1)
+    }
+    if abs(cubic1.maxT - cubic1.minT) < tEpsilon {
+        return trivialIntersection(cubic1, 0.5, cubic0).map({($0.1, $0.0)})
+    }
 
     if let result = lineApproximation(cubic0.cubic, cubic1.cubic) {
         return result.map() {(s, t) in
-            (s * (cubic0.maxT - cubic0.minT) + cubic0.minT, t * (cubic1.maxT - cubic1.minT) + cubic1.minT)
+            (localToGlobalT(s, cubic0.minT, cubic0.maxT), localToGlobalT(t, cubic1.minT, cubic1.maxT))
         }
     }
     if let result = lineApproximation(cubic1.cubic, cubic0.cubic) {
         return result.map() {(s, t) in
-            (t * (cubic0.maxT - cubic0.minT) + cubic0.minT, s * (cubic1.maxT - cubic1.minT) + cubic1.minT)
+            (localToGlobalT(t, cubic0.minT, cubic0.maxT), localToGlobalT(s, cubic1.minT, cubic1.maxT))
         }
     }
     
     if let (minT, maxT) = clip(cubic0.cubic, cubic1.cubic) {
+        let newStart = localToGlobalT(minT, cubic0.minT, cubic0.maxT)
+        let newEnd = localToGlobalT(maxT, cubic0.minT, cubic0.maxT)
+        if abs(newEnd - newStart) < tEpsilon {
+            return trivialIntersection(cubic0, (minT + maxT) / 2, cubic1)
+        }
         let clipped = subdivideMiddle(cubic0.cubic, minT, maxT)
-        let newStart = minT * (cubic0.maxT - cubic0.minT) + cubic0.minT
-        let newEnd = maxT * (cubic0.maxT - cubic0.minT) + cubic0.minT
         if 1 - maxT + minT < 0.2 {
             if maxT - minT > cubic1.maxT - cubic1.minT {
                 let subdivided = subdivide(clipped, 0.5)

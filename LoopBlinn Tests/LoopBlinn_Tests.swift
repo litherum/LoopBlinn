@@ -99,6 +99,60 @@ private func parallelQuad(p0: CGPoint, p1: CGPoint, p2: CGPoint, p3: CGPoint) ->
     return false
 }
 
+private func cleanupPath(path: CGPathRef) -> CGPathRef {
+    // FIXME: Implement this, and do it outside of tests
+    // 1. Remove all 0-length lines
+    // 2. Remove all lines to the subpath start just before a close
+    // 3. Replace cubics which are actually quadratics with quadratics proper
+    // 4. Replace cubics which are actually lines with lines proper
+    // 5. Replace quadratics which are actually lines with lines proper
+    return path
+}
+
+private func close(point0: CGPoint, point1: CGPoint) -> Bool {
+    let epsilon = CGFloat(1)
+    return magnitude(point0 - point1) < epsilon
+}
+
+private func equivalentPaths(path0: CGPathRef, path1: CGPathRef) -> Bool {
+    var result = true
+    convenientIterateCGPath(path0) {(pathElement0, currentPoint0, subpathStart0, elementIndex0) in
+        convenientIterateCGPath(path1) {(pathElement1, currentPoint1, subpathStart1, elementIndex1) in
+            if elementIndex0 == elementIndex1 {
+                if pathElement0.type.value != pathElement1.type.value {
+                    result = false
+                    return
+                }
+                switch pathElement0.type.value {
+                case kCGPathElementMoveToPoint.value:
+                    if !close(pathElement0.points[0], pathElement1.points[0]) {
+                        result = false
+                    }
+                case kCGPathElementAddLineToPoint.value:
+                    if !close(pathElement0.points[0], pathElement1.points[0]) {
+                        result = false
+                    }
+                case kCGPathElementAddQuadCurveToPoint.value:
+                    if !close(pathElement0.points[0], pathElement1.points[0]) || !close(pathElement0.points[1], pathElement1.points[1]) {
+                        result = false
+                    }
+                case kCGPathElementAddCurveToPoint.value:
+                    if !close(pathElement0.points[0], pathElement1.points[0]) || !close(pathElement0.points[1], pathElement1.points[1]) || !close(pathElement0.points[2], pathElement1.points[2]) {
+                        result = false
+                    }
+                case kCGPathElementCloseSubpath.value:
+                    if !close(subpathStart0, subpathStart1) {
+                        result = false
+                    }
+                default:
+                    result = false
+                }
+            }
+        }
+    }
+    return result
+}
+
 class LoopBlinn_Tests: XCTestCase {
     
     override func setUp() {
@@ -247,6 +301,71 @@ class LoopBlinn_Tests: XCTestCase {
             XCTAssert(hasIntersection || numComponents == 4 || numComponents == 6 || numComponents == 5)
             XCTAssert(!hasIntersection || numComponents == 6 || numComponents == 8)
         }
+    }
+    
+    func testCubicIntersections() {
+        let trials = 1
+        let upperBound = UInt32(100)
+        for _ in 0 ..< trials {
+            /*let point1 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
+            let point2 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
+            let point3 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
+            let point4 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
+            let point5 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
+            let point6 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))*/
+            let point1 = CGPointMake(95, 28)
+            let point2 = CGPointMake(35, 18)
+            let point3 = CGPointMake(30, 43)
+            let point4 = CGPointMake(68, 10)
+            let point5 = CGPointMake(68, 35)
+            let point6 = CGPointMake(85, 64) // Should have an intersection point
+            var path = CGPathCreateMutable()
+            CGPathMoveToPoint(path, nil, point1.x, point1.y)
+            CGPathAddCurveToPoint(path, nil, point2.x, point2.y, point3.x, point3.y, point4.x, point4.y)
+            CGPathAddCurveToPoint(path, nil, point5.x, point5.y, point6.x, point6.y, point1.x, point1.y)
+            CGPathCloseSubpath(path)
+            var hasIntersection = false
+            var numComponents = 0
+            convenientIterateCGPath(decomposePath(path)) {(pathElement, currentPoint, subpathStart, elementIndex) in
+                switch pathElement.type.value {
+                case kCGPathElementAddCurveToPoint.value:
+                    let intersection = pathElement.points[2]
+                    if intersection != point1 && intersection != point2 && intersection != point3 && intersection != point4 && intersection != point5 && intersection != point6 {
+                        hasIntersection = true
+                        XCTAssert(isPointOnCurve(Cubic(point1, point2, point3, point4), intersection) || isPointOnCurve(Cubic(point4, point5, point6, point1), intersection), "intersection point does not lie on either curves")
+                    }
+                default:
+                    break
+                }
+                ++numComponents
+            }
+            //XCTAssert(hasIntersection || numComponents == 4 || numComponents == 6 || numComponents == 8)
+            //XCTAssert(!hasIntersection || numComponents == 6 || numComponents == 8)
+        }
+    }
+
+    func testParticularPath1() {
+        let point1 = CGPointMake(95, 28)
+        let point2 = CGPointMake(35, 18)
+        let point3 = CGPointMake(30, 43)
+        let point4 = CGPointMake(68, 10)
+        let point5 = CGPointMake(68, 35)
+        let point6 = CGPointMake(85, 64)
+        var path = CGPathCreateMutable()
+        CGPathMoveToPoint(path, nil, 95, 28)
+        CGPathAddCurveToPoint(path, nil, 35, 18, 30, 43, 68, 10)
+        CGPathAddCurveToPoint(path, nil, 68, 35, 85, 64, 95, 28)
+        CGPathCloseSubpath(path)
+
+        var expectedPath = CGPathCreateMutable()
+        CGPathMoveToPoint(expectedPath, nil, 95, 28)
+        CGPathAddCurveToPoint(expectedPath, nil, 85.6223472152696, 26.4370578692116, 77.5882278878456, 25.7290915748909, 70.8518267803924, 25.521033027687)
+        CGPathAddCurveToPoint(expectedPath, nil, 34.4874567540148, 24.3978935535098, 35.9391800969959, 37.8422909683983, 68.0, 10.0)
+        CGPathAddCurveToPoint(expectedPath, nil, 68.0, 15.2651442320738, 68.7540314309395, 20.7077076243686, 70.0379013004751, 25.6831353238974)
+        CGPathAddCurveToPoint(expectedPath, nil, 74.8501126252335, 44.3320732648191, 87.1060576928295, 56.4181923058137, 95.0, 28.0)
+        CGPathCloseSubpath(expectedPath)
+
+        XCTAssert(equivalentPaths(cleanupPath(path), expectedPath), "Paths should be equal")
     }
 
     // FIXME: Test the same element appearing twice in the same curve. Could even be masquerading as a cubic when the original is a quadratic.
