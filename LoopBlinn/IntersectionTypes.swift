@@ -8,7 +8,7 @@
 
 import Foundation
 
-typealias Line = (CGPoint, CGPoint)
+public typealias Line = (CGPoint, CGPoint)
 typealias Quadratic = (CGPoint, CGPoint, CGPoint)
 typealias Cubic = (CGPoint, CGPoint, CGPoint, CGPoint)
 public typealias Vector3 = (CGFloat, CGFloat, CGFloat)
@@ -17,7 +17,7 @@ public func extendPoint(v: CGPoint) -> Vector3 {
     return (v.x, v.y, 1)
 }
 
-func + (left: CGPoint, right: CGSize) -> CGPoint {
+public func + (left: CGPoint, right: CGSize) -> CGPoint {
     return CGPointMake(left.x + right.width, left.y + right.height)
 }
 

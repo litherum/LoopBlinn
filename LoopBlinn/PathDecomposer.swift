@@ -207,7 +207,7 @@ private func updatePath(path: CGMutablePathRef, ts: [CGFloat], currentPoint: CGP
     }
 }
 
-public func decomposePath(path: CGPathRef) -> CGPathRef {
+public func decomposedPath(path: CGPathRef) -> CGPathRef {
     var result = CGPathCreateMutable()
     convenientIterateCGPath(path) { (element1, currentPoint1, subpathStart1, element1Index) in
         var ts: [CGFloat] = []
@@ -227,4 +227,130 @@ public func decomposePath(path: CGPathRef) -> CGPathRef {
         updatePath(result, processTs(ts), currentPoint1, subpathStart1, element1)
     }
     return result;
+}
+
+public func pointsAreCoincident(point0: CGPoint, point1: CGPoint) -> Bool {
+    let epsilon = CGFloat(1)
+    return magnitude(point0 - point1) < epsilon
+}
+
+private func equivalentQuadraticMethod1(cubic: Cubic) -> Quadratic? {
+    let cubicXTerm = bezierCoeffs(cubic.0.x, cubic.1.x, cubic.2.x, cubic.3.x).0
+    let cubicYTerm = bezierCoeffs(cubic.0.y, cubic.1.y, cubic.2.y, cubic.3.y).0
+    let epsilon = CGFloat(0.001)
+    if abs(cubicXTerm) < epsilon && abs(cubicYTerm) < epsilon {
+        let controlPoint = cubic.0 + CGFloat(3) / 2 * (cubic.1 - cubic.0)
+        return Quadratic(cubic.0, controlPoint, cubic.3)
+    }
+    return nil
+}
+
+private func equivalentQuadratic2(cubic: Cubic) -> Quadratic? {
+    let controlPoint = cubic.0 + CGFloat(3) / 2 * (cubic.1 - cubic.0)
+    let otherControlPoint = cubic.3 + CGFloat(3) / 2 * (cubic.2 - cubic.3)
+    let epsilon = CGFloat(0.001)
+    if magnitude(controlPoint - otherControlPoint) < epsilon {
+        return Quadratic(cubic.0, controlPoint, cubic.3)
+    }
+    return nil
+}
+
+private func equivalentQuadratic(cubic: Cubic) -> Quadratic? {
+    if let method1 = equivalentQuadraticMethod1(cubic) {
+        if let method2 = equivalentQuadratic2(cubic) {
+            let epsilon = CGFloat(1)
+            assert(magnitude(method1.1 - method2.1) < epsilon, "Equivalent quadratic methods don't agree with each other")
+            return method1
+        } else {
+            assertionFailure("Equivalent quadratic methods don't agree with each other")
+        }
+    } else {
+        if let method2 = equivalentQuadratic2(cubic) {
+            assertionFailure("Equivalent quadratic methods don't agree with each other")
+        } else {
+            return nil
+        }
+    }
+    assertionFailure("Not all cases handled in equivalentQuadratic")
+    return nil
+}
+
+private func equivalentLine(cubic: Cubic) -> Line? {
+    let line = Line(cubic.0, cubic.3)
+    if !pointIsOnLine(cubic.1, line) || !pointIsOnLine(cubic.2, line) {
+        return nil
+    }
+    // We actually don't care about the case where the control point is colinear but outside the bounds
+    // of the endpoints, because we only care about filling the inside of the path. Disregarding this
+    // overshoot has no effect on winding order.
+    return line
+}
+
+private func equivalentLine(quad: Quadratic) -> Line? {
+    let line = Line(quad.0, quad.2)
+    if !pointIsOnLine(quad.1, line) {
+        return nil
+    }
+    // We actually don't care about the case where the control point is colinear but outside the bounds
+    // of the endpoints, because we only care about filling the inside of the path. Disregarding this
+    // overshoot has no effect on winding order.
+    return line
+}
+
+public func cleanupPath(path: CGPathRef) -> CGPathRef {
+    var result = CGPathCreateMutable()
+    var postponedLine: CGPoint?
+    convenientIterateCGPath(path) {(pathElement, currentPoint, subpathStart, elementIndex) in
+        if let postponedLine = postponedLine {
+            switch pathElement.type.value {
+            case kCGPathElementAddLineToPoint.value:
+                if pointsAreCoincident(pathElement.points[0], currentPoint) {
+                    return
+                }
+                CGPathAddLineToPoint(result, nil, postponedLine.x, postponedLine.y)
+            case kCGPathElementCloseSubpath.value:
+                if !pointsAreCoincident(subpathStart, postponedLine) {
+                    CGPathAddLineToPoint(result, nil, postponedLine.x, postponedLine.y)
+                }
+            default:
+                CGPathAddLineToPoint(result, nil, postponedLine.x, postponedLine.y)
+            }
+        }
+        postponedLine = nil
+        
+        let handleLine = {(point: CGPoint) in
+            postponedLine = point
+        }
+        
+        let handleQuadratic = {(point0: CGPoint, point1: CGPoint) in
+            CGPathAddQuadCurveToPoint(result, nil, point0.x, point0.y, point1.x, point1.y)
+        }
+
+        switch pathElement.type.value {
+        case kCGPathElementMoveToPoint.value:
+            CGPathMoveToPoint(result, nil, pathElement.points[0].x, pathElement.points[0].y)
+        case kCGPathElementAddLineToPoint.value:
+            handleLine(pathElement.points[0])
+        case kCGPathElementAddQuadCurveToPoint.value:
+            if let line = equivalentLine(Quadratic(currentPoint, pathElement.points[0], pathElement.points[1])) {
+                handleLine(line.1)
+            } else {
+                handleQuadratic(pathElement.points[0], pathElement.points[1])
+            }
+        case kCGPathElementAddCurveToPoint.value:
+            let cubic = Cubic(currentPoint, pathElement.points[0], pathElement.points[1], pathElement.points[2])
+            if let line = equivalentLine(cubic) {
+                handleLine(line.1)
+            } else if let quad = equivalentQuadratic(cubic) {
+                handleQuadratic(quad.1, quad.2)
+            } else {
+                CGPathAddCurveToPoint(result, nil, pathElement.points[0].x, pathElement.points[0].y, pathElement.points[1].x, pathElement.points[1].y, pathElement.points[2].x, pathElement.points[2].y)
+            }
+        case kCGPathElementCloseSubpath.value:
+            CGPathCloseSubpath(result)
+        default:
+            assertionFailure("Unknown kind of path element")
+        }
+    }
+    return result
 }

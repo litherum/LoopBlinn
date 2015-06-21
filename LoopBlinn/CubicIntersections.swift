@@ -76,12 +76,16 @@ private func tForPointOnCurve(cubic: Cubic, point: CGPoint) -> [CGFloat] {
     return result
 }
 
-private func lineApproximation(cubic0: Cubic, cubic1: Cubic) -> [(CGFloat, CGFloat)]? {
-    var approximatingLine = cross(extendPoint(cubic1.0), extendPoint(cubic1.3))
-    var distance1 = abs(dot(approximatingLine, extendPoint(cubic1.1)))
-    var distance2 = abs(dot(approximatingLine, extendPoint(cubic1.2)))
+public func pointIsOnLine(point: CGPoint, line: Line) -> Bool {
+    var homogenousLine = cross(extendPoint(line.0), extendPoint(line.1))
+    var distance = abs(dot(homogenousLine, extendPoint(point)))
     let epsilon = CGFloat(1)
-    if distance1 < epsilon && distance2 < epsilon {
+    return distance < epsilon
+}
+
+private func lineApproximation(cubic0: Cubic, cubic1: Cubic) -> [(CGFloat, CGFloat)]? {
+    let approximatingLine = Line(cubic1.0, cubic1.3)
+    if pointIsOnLine(cubic1.1, approximatingLine) && pointIsOnLine(cubic1.2, approximatingLine) {
         var result: [(CGFloat, CGFloat)] = []
         for (s, t) in generalIntersectCubicAndInfiniteLine(cubic0, Line(cubic1.0, cubic1.3)) {
             let intersection = interpolatePoint(s, cubic0)

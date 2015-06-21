@@ -6,74 +6,10 @@
       <BreakpointProxy
          BreakpointExtensionID = "Xcode.Breakpoint.IDETestFailureBreakpoint">
          <BreakpointContent
-            shouldBeEnabled = "Yes"
+            shouldBeEnabled = "No"
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             breakpointStackSelectionBehavior = "1">
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "LoopBlinn/CubicIntersections.swift"
-            timestampString = "455855175.908639"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "20"
-            endingLineNumber = "20"
-            landmarkName = "intersectCubicAndCubic(_:_:)"
-            landmarkType = "7">
-            <Locations>
-               <Location
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "LoopBlinn.intersectCubicAndCubic ((C.CGPoint, C.CGPoint, C.CGPoint, C.CGPoint), (C.CGPoint, C.CGPoint, C.CGPoint, C.CGPoint)) -&gt; Swift.Array&lt;CoreGraphics.CGFloat&gt;"
-                  moduleName = "LoopBlinn"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/litherum/src/LoopBlinn/LoopBlinn/CubicIntersections.swift"
-                  timestampString = "455858494.45365"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "20"
-                  endingLineNumber = "20"
-                  offsetFromSymbolStart = "317">
-               </Location>
-               <Location
-                  shouldBeEnabled = "No"
-                  ignoreCount = "0"
-                  continueAfterRunningActions = "No"
-                  symbolName = "LoopBlinn.(intersectCubicAndCubic ((C.CGPoint, C.CGPoint, C.CGPoint, C.CGPoint), (C.CGPoint, C.CGPoint, C.CGPoint, C.CGPoint)) -&gt; Swift.Array&lt;CoreGraphics.CGFloat&gt;).(closure #1)"
-                  moduleName = "LoopBlinn"
-                  usesParentBreakpointCondition = "Yes"
-                  urlString = "file:///Users/litherum/src/LoopBlinn/LoopBlinn/CubicIntersections.swift"
-                  timestampString = "455858494.453839"
-                  startingColumnNumber = "9223372036854775807"
-                  endingColumnNumber = "9223372036854775807"
-                  startingLineNumber = "20"
-                  endingLineNumber = "20"
-                  offsetFromSymbolStart = "19">
-               </Location>
-            </Locations>
-         </BreakpointContent>
-      </BreakpointProxy>
-      <BreakpointProxy
-         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
-         <BreakpointContent
-            shouldBeEnabled = "No"
-            ignoreCount = "0"
-            continueAfterRunningActions = "No"
-            filePath = "LoopBlinn/CubicIntersections.swift"
-            timestampString = "455859442.884303"
-            startingColumnNumber = "9223372036854775807"
-            endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "65"
-            endingLineNumber = "65"
-            landmarkName = "tForPointOnCurve(_:_:)"
-            landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>

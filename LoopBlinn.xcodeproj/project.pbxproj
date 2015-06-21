@@ -14,6 +14,7 @@
 		C2327B831B251CF1001FFCA5 /* IntersectionTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2327B821B251CF1001FFCA5 /* IntersectionTypes.swift */; };
 		C2327B851B251F0B001FFCA5 /* CubicIntersections.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2327B841B251F0B001FFCA5 /* CubicIntersections.swift */; };
 		C24B92D11B2A8B98006E9A98 /* libCGAL.11.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C4ACA421A83D8FF007C9347 /* libCGAL.11.0.0.dylib */; };
+		C24B92D31B3638DD006E9A98 /* CleanupPathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C24B92D21B3638DD006E9A98 /* CleanupPathTests.swift */; };
 		C28A55B11A831A960034B66E /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = C28A55B01A831A960034B66E /* AppDelegate.m */; };
 		C28A55B31A831A960034B66E /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = C28A55B21A831A960034B66E /* main.m */; };
 		C28A55B51A831A960034B66E /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = C28A55B41A831A960034B66E /* Images.xcassets */; };
@@ -47,6 +48,7 @@
 		C2327B7E1B251C19001FFCA5 /* LineIntersections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineIntersections.swift; sourceTree = "<group>"; };
 		C2327B821B251CF1001FFCA5 /* IntersectionTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntersectionTypes.swift; sourceTree = "<group>"; };
 		C2327B841B251F0B001FFCA5 /* CubicIntersections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CubicIntersections.swift; sourceTree = "<group>"; };
+		C24B92D21B3638DD006E9A98 /* CleanupPathTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CleanupPathTests.swift; sourceTree = "<group>"; };
 		C28A55AA1A831A960034B66E /* LoopBlinn.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LoopBlinn.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C28A55AE1A831A960034B66E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C28A55AF1A831A960034B66E /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -148,6 +150,7 @@
 			isa = PBXGroup;
 			children = (
 				C2F745B81B1A7AD900812AE5 /* LoopBlinn_Tests.swift */,
+				C24B92D21B3638DD006E9A98 /* CleanupPathTests.swift */,
 				C2F745B61B1A7AD900812AE5 /* Supporting Files */,
 			);
 			path = "LoopBlinn Tests";
@@ -280,6 +283,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				C2F745B91B1A7AD900812AE5 /* LoopBlinn_Tests.swift in Sources */,
+				C24B92D31B3638DD006E9A98 /* CleanupPathTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

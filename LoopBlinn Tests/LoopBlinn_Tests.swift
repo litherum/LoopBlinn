@@ -10,7 +10,7 @@ import Cocoa
 import XCTest
 import LoopBlinn
 
-private func dumpPath(path: CGPathRef) -> String {
+func dumpPath(path: CGPathRef) -> String {
     var result = ""
     iterateCGPath(path) {element in
         switch element.type.value {
@@ -19,7 +19,7 @@ private func dumpPath(path: CGPathRef) -> String {
         case kCGPathElementAddLineToPoint.value:
             result = result + "l \(element.points[0]) "
         case kCGPathElementAddQuadCurveToPoint.value:
-            result = result + "q \(element.points[0]) \(element.points[1])"
+            result = result + "q \(element.points[0]) \(element.points[1]) "
         case kCGPathElementAddCurveToPoint.value:
             result = result + "c \(element.points[0]) \(element.points[1]) \(element.points[2]) "
         case kCGPathElementCloseSubpath.value:
@@ -99,25 +99,16 @@ private func parallelQuad(p0: CGPoint, p1: CGPoint, p2: CGPoint, p3: CGPoint) ->
     return false
 }
 
-private func cleanupPath(path: CGPathRef) -> CGPathRef {
-    // FIXME: Implement this, and do it outside of tests
-    // 1. Remove all 0-length lines
-    // 2. Remove all lines to the subpath start just before a close
-    // 3. Replace cubics which are actually quadratics with quadratics proper
-    // 4. Replace cubics which are actually lines with lines proper
-    // 5. Replace quadratics which are actually lines with lines proper
-    return path
-}
-
-private func close(point0: CGPoint, point1: CGPoint) -> Bool {
-    let epsilon = CGFloat(1)
-    return magnitude(point0 - point1) < epsilon
-}
-
-private func equivalentPaths(path0: CGPathRef, path1: CGPathRef) -> Bool {
+func equivalentPaths(path0: CGPathRef, path1: CGPathRef) -> Bool {
     var result = true
+    // This is n^2. I'm just too lazy to write an iterator to make this O(n)
+    var count1 = 0
+    var count2 = 0
     convenientIterateCGPath(path0) {(pathElement0, currentPoint0, subpathStart0, elementIndex0) in
+        ++count1
+        count2 = 0
         convenientIterateCGPath(path1) {(pathElement1, currentPoint1, subpathStart1, elementIndex1) in
+            ++count2
             if elementIndex0 == elementIndex1 {
                 if pathElement0.type.value != pathElement1.type.value {
                     result = false
@@ -125,23 +116,23 @@ private func equivalentPaths(path0: CGPathRef, path1: CGPathRef) -> Bool {
                 }
                 switch pathElement0.type.value {
                 case kCGPathElementMoveToPoint.value:
-                    if !close(pathElement0.points[0], pathElement1.points[0]) {
+                    if !pointsAreCoincident(pathElement0.points[0], pathElement1.points[0]) {
                         result = false
                     }
                 case kCGPathElementAddLineToPoint.value:
-                    if !close(pathElement0.points[0], pathElement1.points[0]) {
+                    if !pointsAreCoincident(pathElement0.points[0], pathElement1.points[0]) {
                         result = false
                     }
                 case kCGPathElementAddQuadCurveToPoint.value:
-                    if !close(pathElement0.points[0], pathElement1.points[0]) || !close(pathElement0.points[1], pathElement1.points[1]) {
+                    if !pointsAreCoincident(pathElement0.points[0], pathElement1.points[0]) || !pointsAreCoincident(pathElement0.points[1], pathElement1.points[1]) {
                         result = false
                     }
                 case kCGPathElementAddCurveToPoint.value:
-                    if !close(pathElement0.points[0], pathElement1.points[0]) || !close(pathElement0.points[1], pathElement1.points[1]) || !close(pathElement0.points[2], pathElement1.points[2]) {
+                    if !pointsAreCoincident(pathElement0.points[0], pathElement1.points[0]) || !pointsAreCoincident(pathElement0.points[1], pathElement1.points[1]) || !pointsAreCoincident(pathElement0.points[2], pathElement1.points[2]) {
                         result = false
                     }
                 case kCGPathElementCloseSubpath.value:
-                    if !close(subpathStart0, subpathStart1) {
+                    if !pointsAreCoincident(subpathStart0, subpathStart1) {
                         result = false
                     }
                 default:
@@ -150,7 +141,7 @@ private func equivalentPaths(path0: CGPathRef, path1: CGPathRef) -> Bool {
             }
         }
     }
-    return result
+    return result && count1 == count2
 }
 
 class LoopBlinn_Tests: XCTestCase {
@@ -217,7 +208,7 @@ class LoopBlinn_Tests: XCTestCase {
         CGPathAddLineToPoint(path, nil, 100, 0)
         CGPathAddLineToPoint(path, nil, 50, 50)
         CGPathCloseSubpath(path)
-        XCTAssertEqual(dumpPath(decomposePath(path)), "m (0.0, 0.0) l (100.0, 0.0) l (50.0, 50.0) l (0.0, 0.0) z", "Decomposed path")
+        XCTAssertEqual(dumpPath(decomposedPath(path)), "m (0.0, 0.0) l (100.0, 0.0) l (50.0, 50.0) l (0.0, 0.0) z", "Decomposed path")
 
         path = CGPathCreateMutable()
         CGPathMoveToPoint(path, nil, 50, 0)
@@ -225,7 +216,7 @@ class LoopBlinn_Tests: XCTestCase {
         CGPathAddLineToPoint(path, nil, 125, 50)
         CGPathAddLineToPoint(path, nil, 0, 50)
         CGPathCloseSubpath(path)
-        XCTAssertEqual(dumpPath(decomposePath(path)), "m (50.0, 0.0) l (50.0, 50.0) l (50.0, 100.0) l (125.0, 50.0) l (50.0, 50.0) l (0.0, 50.0) l (50.0, 0.0) z", "Decomposed path")
+        XCTAssertEqual(dumpPath(decomposedPath(path)), "m (50.0, 0.0) l (50.0, 50.0) l (50.0, 100.0) l (125.0, 50.0) l (50.0, 50.0) l (0.0, 50.0) l (50.0, 0.0) z", "Decomposed path")
     }
     
     func testNonParallelLineIntersections() {
@@ -247,7 +238,7 @@ class LoopBlinn_Tests: XCTestCase {
             CGPathCloseSubpath(path)
             var hasIntersection = false
             var numComponents = 0
-            convenientIterateCGPath(decomposePath(path)) {(pathElement, currentPoint, subpathStart, elementIndex) in
+            convenientIterateCGPath(decomposedPath(path)) {(pathElement, currentPoint, subpathStart, elementIndex) in
                 switch pathElement.type.value {
                 case kCGPathElementAddLineToPoint.value:
                     let intersection = pathElement.points[0]
@@ -279,7 +270,7 @@ class LoopBlinn_Tests: XCTestCase {
             CGPathCloseSubpath(path)
             var hasIntersection = false
             var numComponents = 0
-            convenientIterateCGPath(decomposePath(path)) {(pathElement, currentPoint, subpathStart, elementIndex) in
+            convenientIterateCGPath(decomposedPath(path)) {(pathElement, currentPoint, subpathStart, elementIndex) in
                 switch pathElement.type.value {
                 case kCGPathElementAddLineToPoint.value:
                     let intersection = pathElement.points[0]
@@ -326,7 +317,7 @@ class LoopBlinn_Tests: XCTestCase {
             CGPathCloseSubpath(path)
             var hasIntersection = false
             var numComponents = 0
-            convenientIterateCGPath(decomposePath(path)) {(pathElement, currentPoint, subpathStart, elementIndex) in
+            convenientIterateCGPath(decomposedPath(path)) {(pathElement, currentPoint, subpathStart, elementIndex) in
                 switch pathElement.type.value {
                 case kCGPathElementAddCurveToPoint.value:
                     let intersection = pathElement.points[2]
@@ -365,7 +356,7 @@ class LoopBlinn_Tests: XCTestCase {
         CGPathAddCurveToPoint(expectedPath, nil, 74.8501126252335, 44.3320732648191, 87.1060576928295, 56.4181923058137, 95.0, 28.0)
         CGPathCloseSubpath(expectedPath)
 
-        XCTAssert(equivalentPaths(cleanupPath(path), expectedPath), "Paths should be equal")
+        XCTAssert(equivalentPaths(cleanupPath(decomposedPath(path)), expectedPath), "Paths should be equal")
     }
 
     // FIXME: Test the same element appearing twice in the same curve. Could even be masquerading as a cubic when the original is a quadratic.
