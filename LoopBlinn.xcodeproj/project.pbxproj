@@ -41,7 +41,6 @@
 		1C4ACA401A83D757007C9347 /* Triangulator.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Triangulator.cpp; sourceTree = "<group>"; };
 		1C4ACA421A83D8FF007C9347 /* libCGAL.11.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL.11.0.0.dylib; path = ../../../../opt/local/lib/libCGAL.11.0.0.dylib; sourceTree = "<group>"; };
 		1C4ACA441A83DBD4007C9347 /* libgmp.10.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgmp.10.dylib; path = ../../../../../../opt/local/lib/libgmp.10.dylib; sourceTree = "<group>"; };
-		1C4ACA471A83FB28007C9347 /* CFPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CFPtr.h; sourceTree = "<group>"; };
 		C2327B7E1B251C19001FFCA5 /* LineIntersections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineIntersections.swift; sourceTree = "<group>"; };
 		C2327B821B251CF1001FFCA5 /* IntersectionTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntersectionTypes.swift; sourceTree = "<group>"; };
 		C2327B841B251F0B001FFCA5 /* CubicIntersections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CubicIntersections.swift; sourceTree = "<group>"; };
@@ -120,7 +119,6 @@
 				C28A55D21A833B170034B66E /* Fragment.fs */,
 				1C4ACA3F1A83D745007C9347 /* Triangulator.h */,
 				1C4ACA401A83D757007C9347 /* Triangulator.cpp */,
-				1C4ACA471A83FB28007C9347 /* CFPtr.h */,
 				C2F745C01B1A7E8200812AE5 /* CGPathIterator.c */,
 				C2F745C11B1A7E8200812AE5 /* CGPathIterator.h */,
 				C2F745BF1B1A7E8100812AE5 /* LoopBlinn-Bridging-Header.h */,

@@ -8,8 +8,6 @@
 
 #include "Triangulator.h"
 
-#include "CFPtr.h"
-
 #include <queue>
 
 #pragma clang diagnostic push
