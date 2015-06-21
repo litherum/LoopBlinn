@@ -229,6 +229,10 @@ public func decomposedPath(path: CGPathRef) -> CGPathRef {
     return result;
 }
 
+public func cleanedUpDecomposedPath(path: CGPathRef) -> CGPathRef {
+    return cleanedUpPath(decomposedPath(path))
+}
+
 public func pointsAreCoincident(point0: CGPoint, point1: CGPoint) -> Bool {
     let epsilon = CGFloat(1)
     return magnitude(point0 - point1) < epsilon
@@ -297,7 +301,7 @@ private func equivalentLine(quad: Quadratic) -> Line? {
     return line
 }
 
-public func cleanupPath(path: CGPathRef) -> CGPathRef {
+public func cleanedUpPath(path: CGPathRef) -> CGPathRef {
     var result = CGPathCreateMutable()
     var postponedLine: CGPoint?
     convenientIterateCGPath(path) {(pathElement, currentPoint, subpathStart, elementIndex) in

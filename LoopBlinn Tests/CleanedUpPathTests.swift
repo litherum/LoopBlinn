@@ -1,5 +1,5 @@
 //
-//  CleanupPathTests.swift
+//  CleanedUpPathTests.swift
 //  LoopBlinn
 //
 //  Created by Litherum on 6/20/15.
@@ -9,7 +9,7 @@
 import XCTest
 import LoopBlinn
 
-class CleanupPathTests: XCTestCase {
+class CleanedUpPathTests: XCTestCase {
     func testPath1() {
         var path = CGPathCreateMutable()
         CGPathMoveToPoint(path, nil, 100, 100)
@@ -24,7 +24,7 @@ class CleanupPathTests: XCTestCase {
         CGPathAddLineToPoint(expectedPath, nil, 150, 200)
         CGPathCloseSubpath(expectedPath)
         
-        XCTAssert(equivalentPaths(cleanupPath(path), expectedPath), "Paths should be equal")
+        XCTAssert(equivalentPaths(cleanedUpPath(path), expectedPath), "Paths should be equal")
     }
 
     func testPath2() {
@@ -42,7 +42,7 @@ class CleanupPathTests: XCTestCase {
         CGPathAddLineToPoint(expectedPath, nil, 150, 200)
         CGPathCloseSubpath(expectedPath)
         
-        XCTAssert(equivalentPaths(cleanupPath(path), expectedPath), "Paths should be equal")
+        XCTAssert(equivalentPaths(cleanedUpPath(path), expectedPath), "Paths should be equal")
     }
     
     func testPath3() {
@@ -59,7 +59,7 @@ class CleanupPathTests: XCTestCase {
         CGPathAddLineToPoint(expectedPath, nil, 150, 200)
         CGPathCloseSubpath(expectedPath)
         
-        XCTAssert(equivalentPaths(cleanupPath(path), expectedPath), "Paths should be equal")
+        XCTAssert(equivalentPaths(cleanedUpPath(path), expectedPath), "Paths should be equal")
     }
     
     func testPath4() {
@@ -75,7 +75,7 @@ class CleanupPathTests: XCTestCase {
         CGPathAddQuadCurveToPoint(expectedPath, nil, 400, 400, 100, 100)
         CGPathCloseSubpath(expectedPath)
         
-        XCTAssert(equivalentPaths(cleanupPath(path), expectedPath), "Paths should be equal")
+        XCTAssert(equivalentPaths(cleanedUpPath(path), expectedPath), "Paths should be equal")
     }
     
     func testPath5() {
@@ -91,7 +91,7 @@ class CleanupPathTests: XCTestCase {
         CGPathAddLineToPoint(expectedPath, nil, 150, 200)
         CGPathCloseSubpath(expectedPath)
         
-        XCTAssert(equivalentPaths(cleanupPath(path), expectedPath), "Paths should be equal")
+        XCTAssert(equivalentPaths(cleanedUpPath(path), expectedPath), "Paths should be equal")
     }
     
     func testPath6() {
@@ -107,7 +107,7 @@ class CleanupPathTests: XCTestCase {
         CGPathAddLineToPoint(expectedPath, nil, 150, 200)
         CGPathCloseSubpath(expectedPath)
         
-        XCTAssert(equivalentPaths(cleanupPath(path), expectedPath), "Paths should be equal")
+        XCTAssert(equivalentPaths(cleanedUpPath(path), expectedPath), "Paths should be equal")
     }
     
     func testPath7() {
@@ -123,7 +123,7 @@ class CleanupPathTests: XCTestCase {
         CGPathAddLineToPoint(expectedPath, nil, 150, 200)
         CGPathCloseSubpath(expectedPath)
         
-        XCTAssert(equivalentPaths(cleanupPath(path), expectedPath), "Paths should be equal")
+        XCTAssert(equivalentPaths(cleanedUpPath(path), expectedPath), "Paths should be equal")
     }
     
     func testPath8() {
@@ -152,7 +152,7 @@ class CleanupPathTests: XCTestCase {
             CGPathAddLineToPoint(expectedPath, nil, 150, 0)
             CGPathCloseSubpath(expectedPath)
         
-            XCTAssert(equivalentPaths(cleanupPath(path), expectedPath), "Paths should be equal")
+            XCTAssert(equivalentPaths(cleanedUpPath(path), expectedPath), "Paths should be equal")
         }
     }
 }

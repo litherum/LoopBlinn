@@ -298,18 +298,12 @@ class LoopBlinn_Tests: XCTestCase {
         let trials = 1
         let upperBound = UInt32(100)
         for _ in 0 ..< trials {
-            /*let point1 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
+            let point1 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
             let point2 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
             let point3 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
             let point4 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
             let point5 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
-            let point6 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))*/
-            let point1 = CGPointMake(95, 28)
-            let point2 = CGPointMake(35, 18)
-            let point3 = CGPointMake(30, 43)
-            let point4 = CGPointMake(68, 10)
-            let point5 = CGPointMake(68, 35)
-            let point6 = CGPointMake(85, 64) // Should have an intersection point
+            let point6 = CGPointMake(CGFloat(arc4random_uniform(upperBound)), CGFloat(arc4random_uniform(upperBound)))
             var path = CGPathCreateMutable()
             CGPathMoveToPoint(path, nil, point1.x, point1.y)
             CGPathAddCurveToPoint(path, nil, point2.x, point2.y, point3.x, point3.y, point4.x, point4.y)
@@ -356,7 +350,7 @@ class LoopBlinn_Tests: XCTestCase {
         CGPathAddCurveToPoint(expectedPath, nil, 74.8501126252335, 44.3320732648191, 87.1060576928295, 56.4181923058137, 95.0, 28.0)
         CGPathCloseSubpath(expectedPath)
 
-        XCTAssert(equivalentPaths(cleanupPath(decomposedPath(path)), expectedPath), "Paths should be equal")
+        XCTAssert(equivalentPaths(cleanedUpPath(decomposedPath(path)), expectedPath), "Paths should be equal")
     }
 
     // FIXME: Test the same element appearing twice in the same curve. Could even be masquerading as a cubic when the original is a quadratic.
