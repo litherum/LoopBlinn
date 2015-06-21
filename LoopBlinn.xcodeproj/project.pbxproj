@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		1C4ACA411A83D757007C9347 /* Triangulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1C4ACA401A83D757007C9347 /* Triangulator.cpp */; };
 		1C4ACA451A83DBD4007C9347 /* libgmp.10.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 1C4ACA441A83DBD4007C9347 /* libgmp.10.dylib */; };
-		1CCAA7FD1A88376A00135A40 /* PathWinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1CCAA7FB1A88376A00135A40 /* PathWinder.cpp */; };
 		C2327B7F1B251C19001FFCA5 /* LineIntersections.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2327B7E1B251C19001FFCA5 /* LineIntersections.swift */; };
 		C2327B831B251CF1001FFCA5 /* IntersectionTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2327B821B251CF1001FFCA5 /* IntersectionTypes.swift */; };
 		C2327B851B251F0B001FFCA5 /* CubicIntersections.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2327B841B251F0B001FFCA5 /* CubicIntersections.swift */; };
@@ -43,8 +42,6 @@
 		1C4ACA421A83D8FF007C9347 /* libCGAL.11.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libCGAL.11.0.0.dylib; path = ../../../../opt/local/lib/libCGAL.11.0.0.dylib; sourceTree = "<group>"; };
 		1C4ACA441A83DBD4007C9347 /* libgmp.10.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libgmp.10.dylib; path = ../../../../../../opt/local/lib/libgmp.10.dylib; sourceTree = "<group>"; };
 		1C4ACA471A83FB28007C9347 /* CFPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CFPtr.h; sourceTree = "<group>"; };
-		1CCAA7FB1A88376A00135A40 /* PathWinder.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PathWinder.cpp; sourceTree = "<group>"; };
-		1CCAA7FC1A88376A00135A40 /* PathWinder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PathWinder.h; sourceTree = "<group>"; };
 		C2327B7E1B251C19001FFCA5 /* LineIntersections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineIntersections.swift; sourceTree = "<group>"; };
 		C2327B821B251CF1001FFCA5 /* IntersectionTypes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntersectionTypes.swift; sourceTree = "<group>"; };
 		C2327B841B251F0B001FFCA5 /* CubicIntersections.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CubicIntersections.swift; sourceTree = "<group>"; };
@@ -124,11 +121,9 @@
 				1C4ACA3F1A83D745007C9347 /* Triangulator.h */,
 				1C4ACA401A83D757007C9347 /* Triangulator.cpp */,
 				1C4ACA471A83FB28007C9347 /* CFPtr.h */,
-				1CCAA7FB1A88376A00135A40 /* PathWinder.cpp */,
 				C2F745C01B1A7E8200812AE5 /* CGPathIterator.c */,
 				C2F745C11B1A7E8200812AE5 /* CGPathIterator.h */,
 				C2F745BF1B1A7E8100812AE5 /* LoopBlinn-Bridging-Header.h */,
-				1CCAA7FC1A88376A00135A40 /* PathWinder.h */,
 				C2F745C31B1A89E600812AE5 /* PathDecomposer.swift */,
 				C2327B821B251CF1001FFCA5 /* IntersectionTypes.swift */,
 				C2327B7E1B251C19001FFCA5 /* LineIntersections.swift */,
@@ -272,7 +267,6 @@
 				C28A55B11A831A960034B66E /* AppDelegate.m in Sources */,
 				C2F745C41B1A89E600812AE5 /* PathDecomposer.swift in Sources */,
 				C2327B7F1B251C19001FFCA5 /* LineIntersections.swift in Sources */,
-				1CCAA7FD1A88376A00135A40 /* PathWinder.cpp in Sources */,
 				C2F745C51B1A8A4C00812AE5 /* CGPathIterator.c in Sources */,
 				C28A55CE1A831B120034B66E /* LoopBlinnView.m in Sources */,
 			);

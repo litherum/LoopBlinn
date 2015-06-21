@@ -9,7 +9,6 @@
 #include "Triangulator.h"
 
 #include "CFPtr.h"
-#include "PathWinder.h"
 
 #include <queue>
 
@@ -383,7 +382,7 @@ static void pathIterator(void *info, const CGPathElement *element) {
 void triangulatorAppendPath(Triangulator* triangulator, CGPathRef path, CGPoint origin) {
     triangulator->moveTo(origin);
     struct PathIteratorContext context(*triangulator, origin);
-    CGPathRef newPath(createNonIntersectingPath(path));
+    CGPathRef newPath(path);
     CGPathApply(newPath, &context, &pathIterator);
     CFRelease(newPath);
 }
